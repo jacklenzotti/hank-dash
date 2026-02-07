@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hank Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Hank Dashboard</h1>
+      <div id="connection-status" class="status-badge disconnected">
+        Disconnected
+      </div>
+    </header>
+
+    <main>
+      <!-- Status Bar -->
+      <section id="status-bar" class="card">
+        <div class="status-row">
+          <div class="status-item">
+            <span class="label">Status</span>
+            <span id="run-status" class="value">—</span>
+          </div>
+          <div class="status-item">
+            <span class="label">Loop</span>
+            <span id="loop-count" class="value">—</span>
+          </div>
+          <div class="status-item">
+            <span class="label">Total Cost</span>
+            <span id="total-cost" class="value">—</span>
+          </div>
+          <div class="status-item">
+            <span class="label">Duration</span>
+            <span id="total-duration" class="value">—</span>
+          </div>
+          <div class="status-item">
+            <span class="label">API Calls</span>
+            <span id="api-calls" class="value">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Circuit Breaker -->
+      <section id="circuit-breaker-section" class="card">
+        <h2>Circuit Breaker</h2>
+        <div class="cb-row">
+          <div id="cb-state" class="cb-gauge closed">CLOSED</div>
+          <div class="cb-details">
+            <div>
+              <span class="label">Total Opens:</span>
+              <span id="cb-total-opens">0</span>
+            </div>
+            <div>
+              <span class="label">No Progress:</span>
+              <span id="cb-no-progress">0</span>
+            </div>
+            <div>
+              <span class="label">Same Error:</span>
+              <span id="cb-same-error">0</span>
+            </div>
+            <div>
+              <span class="label">Reason:</span> <span id="cb-reason">—</span>
+            </div>
+          </div>
+        </div>
+        <div id="cb-history" class="history-list"></div>
+      </section>
+
+      <!-- Stall Detection Warning -->
+      <section
+        id="stall-section"
+        class="card warning-card"
+        style="display: none;"
+      >
+        <h2>Stall Warning</h2>
+        <div id="stall-content" class="stall-warning"></div>
+      </section>
+
+      <!-- Cost Timeline -->
+      <section id="cost-section" class="card">
+        <h2>Cost per Loop</h2>
+        <div id="cost-chart" class="chart-container"></div>
+      </section>
+
+      <!-- Cumulative Cost -->
+      <section id="cumulative-cost-section" class="card">
+        <h2>Cumulative Cost</h2>
+        <div id="cumulative-cost-chart" class="chart-container"></div>
+      </section>
+
+      <!-- Token Efficiency -->
+      <section id="token-section" class="card">
+        <h2>Token Breakdown</h2>
+        <div id="token-chart" class="chart-container"></div>
+      </section>
+
+      <!-- Loop Timeline -->
+      <section id="timeline-section" class="card">
+        <h2>Loop Timeline</h2>
+        <div id="loop-timeline" class="timeline"></div>
+      </section>
+
+      <!-- Implementation Plan -->
+      <section id="plan-section" class="card">
+        <h2>Implementation Plan</h2>
+        <div id="plan-progress" class="progress-bar-container">
+          <div class="progress-bar">
+            <div id="plan-bar" class="progress-fill"></div>
+          </div>
+          <span id="plan-count" class="progress-text">0/0</span>
+        </div>
+        <ul id="plan-tasks" class="task-list"></ul>
+      </section>
+
+      <!-- Response Analysis -->
+      <section id="analysis-section" class="card">
+        <h2>Latest Analysis</h2>
+        <div id="analysis-content">
+          <div>
+            <span class="label">Confidence:</span>
+            <span id="analysis-confidence">—</span>
+          </div>
+          <div>
+            <span class="label">Summary:</span>
+            <span id="analysis-summary">—</span>
+          </div>
+          <div><span class="label">Files Changed:</span></div>
+          <ul id="analysis-files"></ul>
+        </div>
+      </section>
+
+      <!-- Issue Burndown -->
+      <section id="issue-section" class="card">
+        <h2>Issue Cost Breakdown</h2>
+        <div id="issue-content"></div>
+      </section>
+
+      <!-- Exit Signals -->
+      <section id="exit-section" class="card">
+        <h2>Exit Signals</h2>
+        <div id="exit-content">
+          <div>
+            <span class="label">Done Signals:</span>
+            <span id="exit-done">—</span>
+          </div>
+          <div>
+            <span class="label">Test-Only Loops:</span>
+            <span id="exit-test-loops">—</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+{
+  "test_only_loops": [4],
+  "done_signals": ["all_tests_passing", "implementation_complete"],
+  "completion_indicators": ["EXIT_SIGNAL: true"]
+}

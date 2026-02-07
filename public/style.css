@@ -1,0 +1,434 @@
+/* Hank Dashboard — dark theme, monospace, information-dense */
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --yellow: #d29922;
+  --red: #f85149;
+  --orange: #db6d28;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+header h1 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.connected {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--green);
+}
+
+.status-badge.disconnected {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--red);
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px 20px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.card h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+/* Status Bar — spans full width */
+#status-bar {
+  grid-column: 1 / -1;
+}
+
+.status-row {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.value.running {
+  color: var(--green);
+}
+
+.value.stopped {
+  color: var(--text-muted);
+}
+
+/* Circuit Breaker */
+.cb-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.cb-gauge {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.cb-gauge.closed {
+  background: rgba(63, 185, 80, 0.15);
+  border: 2px solid var(--green);
+  color: var(--green);
+}
+
+.cb-gauge.open {
+  background: rgba(248, 81, 73, 0.15);
+  border: 2px solid var(--red);
+  color: var(--red);
+}
+
+.cb-gauge.half_open {
+  background: rgba(210, 153, 34, 0.15);
+  border: 2px solid var(--yellow);
+  color: var(--yellow);
+}
+
+.cb-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.history-list {
+  margin-top: 12px;
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 11px;
+}
+
+.history-item {
+  padding: 4px 0;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+/* Charts — simple bar charts via CSS */
+.chart-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 120px;
+  padding: 8px 0;
+}
+
+.chart-bar {
+  flex: 1;
+  min-width: 20px;
+  background: var(--accent);
+  border-radius: 3px 3px 0 0;
+  position: relative;
+  transition: height 0.3s ease;
+  cursor: default;
+}
+
+.chart-bar:hover {
+  opacity: 0.8;
+}
+
+.chart-bar .bar-label {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.chart-bar .bar-value {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Token chart colors */
+.chart-bar.input {
+  background: var(--accent);
+}
+.chart-bar.output {
+  background: var(--green);
+}
+.chart-bar.cache-read {
+  background: var(--yellow);
+}
+.chart-bar.cache-write {
+  background: var(--orange);
+}
+
+/* Timeline */
+.timeline {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.timeline-entry {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.timeline-entry:last-child {
+  border-bottom: none;
+}
+
+.timeline-loop {
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 40px;
+}
+
+.timeline-cost {
+  color: var(--green);
+  min-width: 60px;
+}
+
+.timeline-duration {
+  color: var(--text-muted);
+  min-width: 50px;
+}
+
+.timeline-issue {
+  color: var(--yellow);
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Task List */
+.task-list {
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.task-list li {
+  padding: 3px 0;
+  font-size: 12px;
+}
+
+.task-list li.completed {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.task-list li::before {
+  content: "\2610 ";
+  margin-right: 4px;
+}
+
+.task-list li.completed::before {
+  content: "\2611 ";
+  color: var(--green);
+}
+
+/* Analysis files list */
+#analysis-files {
+  list-style: none;
+  margin-top: 4px;
+}
+
+#analysis-files li {
+  padding: 2px 0;
+  font-size: 12px;
+  color: var(--accent);
+}
+
+#analysis-files li::before {
+  content: "  ";
+}
+
+/* Stall Warning */
+.warning-card {
+  grid-column: 1 / -1;
+  border-color: var(--red);
+  background: rgba(248, 81, 73, 0.05);
+}
+
+.warning-card h2 {
+  color: var(--red);
+}
+
+.stall-warning {
+  color: var(--red);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.stall-indicator {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.stall-indicator.high {
+  background: rgba(248, 81, 73, 0.2);
+  color: var(--red);
+}
+
+.stall-indicator.medium {
+  background: rgba(210, 153, 34, 0.2);
+  color: var(--yellow);
+}
+
+/* Issue Burndown */
+.issue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.issue-table th {
+  text-align: left;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.issue-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.issue-table tr:last-child td {
+  border-bottom: none;
+}
+
+.issue-number {
+  color: var(--yellow);
+  font-weight: 600;
+}
+
+/* Files changed in timeline */
+.timeline-files {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-left: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+
+  .status-row {
+    gap: 16px;
+  }
+}

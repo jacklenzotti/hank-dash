@@ -1,0 +1,43 @@
+/**
+ * Aggregates all parsers into a single function that reads the entire .hank/ directory
+ * and returns a unified dashboard state object.
+ */
+
+const { parseCostLog } = require("./cost-log");
+const { parseCostSession } = require("./cost-session");
+const {
+  parseCircuitBreakerState,
+  parseCircuitBreakerHistory,
+} = require("./circuit-breaker");
+const { parseResponseAnalysis } = require("./response-analysis");
+const { parseExitSignals } = require("./exit-signals");
+const { parseStatus } = require("./status");
+const { parseProgress } = require("./progress");
+const { parseImplementationPlan } = require("./implementation-plan");
+
+function parseAll(hankDir) {
+  return {
+    costLog: parseCostLog(hankDir),
+    costSession: parseCostSession(hankDir),
+    circuitBreaker: parseCircuitBreakerState(hankDir),
+    circuitBreakerHistory: parseCircuitBreakerHistory(hankDir),
+    responseAnalysis: parseResponseAnalysis(hankDir),
+    exitSignals: parseExitSignals(hankDir),
+    status: parseStatus(hankDir),
+    progress: parseProgress(hankDir),
+    implementationPlan: parseImplementationPlan(hankDir),
+  };
+}
+
+module.exports = {
+  parseAll,
+  parseCostLog,
+  parseCostSession,
+  parseCircuitBreakerState,
+  parseCircuitBreakerHistory,
+  parseResponseAnalysis,
+  parseExitSignals,
+  parseStatus,
+  parseProgress,
+  parseImplementationPlan,
+};

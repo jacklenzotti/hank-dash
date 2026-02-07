@@ -1,0 +1,12 @@
+{
+  "confidence": 0.85,
+  "files_changed": ["src/server.js", "src/parsers/cost.js"],
+  "signals": {
+    "tests_passing": true,
+    "new_errors": false,
+    "progress_made": true,
+    "stuck_pattern": false
+  },
+  "summary": "Implemented cost parser with JSONL support",
+  "loop": 5
+}

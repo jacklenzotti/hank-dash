@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "description": "Live web dashboard for Hank autonomous loop runs",
   "main": "src/server.js",
+  "bin": {
+    "hank-dash": "bin/hank-dash.js"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node --test tests/**/*.test.js"
+    "test": "node --test 'tests/**/*.test.js' 'tests/*.test.js'"
   },
   "keywords": [
     "hank",

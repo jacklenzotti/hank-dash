@@ -1,0 +1,10 @@
+{
+  "session_id": "hank-1770442743-29176",
+  "total_cost_usd": 0.1167,
+  "total_input_tokens": 73620,
+  "total_output_tokens": 15710,
+  "total_cache_read_tokens": 45200,
+  "total_cache_write_tokens": 9500,
+  "total_duration_seconds": 213.2,
+  "total_loops": 5
+}
