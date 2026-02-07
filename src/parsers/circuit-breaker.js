@@ -26,7 +26,8 @@ function parseCircuitBreakerState(hankDir) {
     };
   } catch (err) {
     if (err.code === "ENOENT") return null;
-    throw err;
+    console.error("Failed to parse .circuit_breaker_state:", err.message);
+    return null;
   }
 }
 
@@ -48,7 +49,8 @@ function parseCircuitBreakerHistory(hankDir) {
     }));
   } catch (err) {
     if (err.code === "ENOENT") return [];
-    throw err;
+    console.error("Failed to parse .circuit_breaker_history:", err.message);
+    return [];
   }
 }
 

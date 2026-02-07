@@ -72,7 +72,6 @@
       );
     } else if (data.costLog && data.costLog.length > 0) {
       // Fall back to computing from cost log
-      const last = data.costLog[data.costLog.length - 1];
       const totalCost = data.costLog.reduce((sum, e) => sum + loopCost(e), 0);
       const totalDuration = data.costLog.reduce(
         (sum, e) => sum + (e.durationSeconds || 0),
@@ -106,11 +105,11 @@
           "<strong>Loop " +
           h.loop +
           ":</strong> " +
-          h.fromState +
+          escapeHtml(h.fromState || "") +
           " → " +
-          h.toState +
+          escapeHtml(h.toState || "") +
           " (" +
-          h.reason +
+          escapeHtml(h.reason || "") +
           ")" +
           "</div>"
       )
@@ -162,10 +161,10 @@
     // Aggregate tokens across all loops
     const totals = entries.reduce(
       (acc, e) => {
-        acc.input += e.inputTokens;
-        acc.output += e.outputTokens;
-        acc.cacheRead += e.cacheReadTokens;
-        acc.cacheWrite += e.cacheWriteTokens;
+        acc.input += e.inputTokens || 0;
+        acc.output += e.outputTokens || 0;
+        acc.cacheRead += e.cacheReadTokens || 0;
+        acc.cacheWrite += e.cacheWriteTokens || 0;
         return acc;
       },
       { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }
@@ -242,7 +241,9 @@
           formatDuration(e.durationSeconds) +
           "</span>" +
           (e.issueNumber
-            ? '<span class="timeline-issue">#' + e.issueNumber + "</span>"
+            ? '<span class="timeline-issue">#' +
+              escapeHtml(String(e.issueNumber)) +
+              "</span>"
             : "") +
           filesInfo +
           "</div>"
@@ -283,7 +284,9 @@
     if (!analysis) return;
 
     els.analysisConfidence.textContent =
-      (analysis.confidence * 100).toFixed(0) + "%";
+      analysis.confidence != null
+        ? (analysis.confidence * 100).toFixed(0) + "%"
+        : "—";
     els.analysisSummary.textContent = analysis.summary || "—";
     els.analysisFiles.innerHTML = (analysis.filesChanged || [])
       .map((f) => "<li>" + escapeHtml(f) + "</li>")
@@ -294,12 +297,11 @@
     const signals = data.exitSignals;
     if (!signals) return;
 
-    els.exitDone.textContent =
-      signals.doneSignals.length > 0 ? signals.doneSignals.join(", ") : "none";
+    const done = signals.doneSignals || [];
+    const testLoops = signals.testOnlyLoops || [];
+    els.exitDone.textContent = done.length > 0 ? done.join(", ") : "none";
     els.exitTestLoops.textContent =
-      signals.testOnlyLoops.length > 0
-        ? signals.testOnlyLoops.join(", ")
-        : "none";
+      testLoops.length > 0 ? testLoops.join(", ") : "none";
   }
 
   function loopCost(entry) {
@@ -393,7 +395,7 @@
         (entries.length - 1);
       const latest = entries[entries.length - 1];
       const latestCost = loopCost(latest);
-      if (latestCost > avgCost * 3) {
+      if (avgCost > 0 && latestCost > avgCost * 3) {
         warnings.push(
           '<span class="stall-indicator medium">COST SPIKE</span> ' +
             "Loop " +
@@ -434,8 +436,8 @@
       }
       issues[key].loops++;
       issues[key].cost += loopCost(e);
-      issues[key].duration += e.durationSeconds;
-      issues[key].tokens += e.inputTokens + e.outputTokens;
+      issues[key].duration += e.durationSeconds || 0;
+      issues[key].tokens += (e.inputTokens || 0) + (e.outputTokens || 0);
     }
 
     const rows = Object.entries(issues)

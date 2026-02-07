@@ -21,7 +21,8 @@ function parseResponseAnalysis(hankDir) {
     };
   } catch (err) {
     if (err.code === "ENOENT") return null;
-    throw err;
+    console.error("Failed to parse .response_analysis:", err.message);
+    return null;
   }
 }
 

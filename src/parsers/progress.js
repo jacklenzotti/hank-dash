@@ -20,7 +20,8 @@ function parseProgress(hankDir) {
     };
   } catch (err) {
     if (err.code === "ENOENT") return null;
-    throw err;
+    console.error("Failed to parse progress.json:", err.message);
+    return null;
   }
 }
 

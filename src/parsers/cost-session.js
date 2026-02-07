@@ -24,7 +24,8 @@ function parseCostSession(hankDir) {
     };
   } catch (err) {
     if (err.code === "ENOENT") return null;
-    throw err;
+    console.error("Failed to parse .cost_session:", err.message);
+    return null;
   }
 }
 

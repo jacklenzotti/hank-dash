@@ -29,8 +29,14 @@
 - [x] Directory traversal prevention in static file serving
 - [x] Graceful shutdown (SIGINT/SIGTERM)
 - [x] End-to-end smoke test (HTML sections + API data completeness)
+- [x] Parser resilience: all parsers gracefully handle malformed JSON (return safe defaults, log errors)
+- [x] XSS prevention: all dynamic data in innerHTML is escaped via escapeHtml()
+- [x] Frontend null safety: token aggregation, exit signals, analysis confidence handle missing fields
+- [x] Server: parent watcher tracked and cleaned up on stop() to prevent memory leaks
+- [x] Stall detection: cost spike check guards against avgCost=0 false positives
+- [x] Malformed JSON tests — 8 tests verifying parser resilience to corrupted files
 
 ## Notes
 
-- 27 tests total: 21 parser + 6 server (including 2 e2e smoke tests)
+- 35 tests total: 21 parser + 8 malformed JSON resilience + 6 server (including 2 e2e smoke tests)
 - Frontend DOM rendering tests are not feasible without a browser/JSDOM dependency, which violates the zero-dependency constraint. The e2e smoke tests cover the critical path (HTML has all sections, API returns all data).

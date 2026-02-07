@@ -33,6 +33,7 @@ class DashboardServer {
     this.emitter = new EventEmitter();
     this.sseClients = new Set();
     this.watcher = null;
+    this.parentWatcher = null;
     this.server = null;
     this.debounceTimer = null;
   }
@@ -53,15 +54,13 @@ class DashboardServer {
         `Warning: ${this.hankDir} does not exist yet. Watching for creation...`
       );
       // Watch parent directory for .hank creation
-      const parentWatcher = fs.watch(
-        this.projectPath,
-        (eventType, filename) => {
-          if (filename === ".hank" && fs.existsSync(this.hankDir)) {
-            parentWatcher.close();
-            this._watchHankDir();
-          }
+      this.parentWatcher = fs.watch(this.projectPath, (eventType, filename) => {
+        if (filename === ".hank" && fs.existsSync(this.hankDir)) {
+          this.parentWatcher.close();
+          this.parentWatcher = null;
+          this._watchHankDir();
         }
-      );
+      });
       return;
     }
     this._watchHankDir();
@@ -189,6 +188,10 @@ class DashboardServer {
    * Stop the server and file watcher.
    */
   stop() {
+    if (this.parentWatcher) {
+      this.parentWatcher.close();
+      this.parentWatcher = null;
+    }
     if (this.watcher) {
       this.watcher.close();
       this.watcher = null;
