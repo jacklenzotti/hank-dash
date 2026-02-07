@@ -72,9 +72,10 @@
       );
     } else if (data.costLog && data.costLog.length > 0) {
       // Fall back to computing from cost log
-      const totalCost = data.costLog.reduce((sum, e) => sum + e.costUsd, 0);
+      const last = data.costLog[data.costLog.length - 1];
+      const totalCost = data.costLog.reduce((sum, e) => sum + loopCost(e), 0);
       const totalDuration = data.costLog.reduce(
-        (sum, e) => sum + e.durationSeconds,
+        (sum, e) => sum + (e.durationSeconds || 0),
         0
       );
       els.totalCost.textContent = formatCost(totalCost);
@@ -124,10 +125,11 @@
       return;
     }
 
-    const maxCost = Math.max(...entries.map((e) => e.costUsd));
+    const maxCost = Math.max(...entries.map((e) => loopCost(e)));
     els.costChart.innerHTML = entries
       .map((e) => {
-        const heightPct = maxCost > 0 ? (e.costUsd / maxCost) * 100 : 0;
+        const cost = loopCost(e);
+        const heightPct = maxCost > 0 ? (cost / maxCost) * 100 : 0;
         return (
           '<div class="chart-bar" style="height:' +
           heightPct +
@@ -135,10 +137,10 @@
           ' title="Loop ' +
           e.loop +
           ": " +
-          formatCost(e.costUsd) +
+          formatCost(cost) +
           '">' +
           '<span class="bar-label">' +
-          formatCost(e.costUsd) +
+          formatCost(cost) +
           "</span>" +
           '<span class="bar-value">L' +
           e.loop +
@@ -234,7 +236,7 @@
           e.loop +
           "</span>" +
           '<span class="timeline-cost">' +
-          formatCost(e.costUsd) +
+          formatCost(loopCost(e)) +
           "</span>" +
           '<span class="timeline-duration">' +
           formatDuration(e.durationSeconds) +
@@ -300,6 +302,10 @@
         : "none";
   }
 
+  function loopCost(entry) {
+    return entry.costUsd || entry.totalCostUsd || 0;
+  }
+
   function escapeHtml(str) {
     return str
       .replace(/&/g, "&amp;")
@@ -319,7 +325,7 @@
     // Build cumulative cost array
     let cumulative = 0;
     const points = entries.map((e) => {
-      cumulative += e.costUsd;
+      cumulative += loopCost(e);
       return { loop: e.loop, total: cumulative };
     });
 
@@ -383,18 +389,19 @@
     // Check for cost anomalies — if latest loop cost is 3x the average
     if (entries.length >= 3) {
       const avgCost =
-        entries.slice(0, -1).reduce((s, e) => s + e.costUsd, 0) /
+        entries.slice(0, -1).reduce((s, e) => s + loopCost(e), 0) /
         (entries.length - 1);
       const latest = entries[entries.length - 1];
-      if (latest.costUsd > avgCost * 3) {
+      const latestCost = loopCost(latest);
+      if (latestCost > avgCost * 3) {
         warnings.push(
           '<span class="stall-indicator medium">COST SPIKE</span> ' +
             "Loop " +
             latest.loop +
             " cost (" +
-            formatCost(latest.costUsd) +
+            formatCost(latestCost) +
             ") is " +
-            (latest.costUsd / avgCost).toFixed(1) +
+            (latestCost / avgCost).toFixed(1) +
             "x the average (" +
             formatCost(avgCost) +
             ")"
@@ -426,7 +433,7 @@
         issues[key] = { loops: 0, cost: 0, duration: 0, tokens: 0 };
       }
       issues[key].loops++;
-      issues[key].cost += e.costUsd;
+      issues[key].cost += loopCost(e);
       issues[key].duration += e.durationSeconds;
       issues[key].tokens += e.inputTokens + e.outputTokens;
     }

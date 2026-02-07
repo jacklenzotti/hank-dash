@@ -21,11 +21,17 @@ function parseCostLog(hankDir) {
           timestamp: entry.timestamp,
           loop: entry.loop,
           costUsd: entry.cost_usd,
+          totalCostUsd: entry.total_cost_usd,
           inputTokens: entry.input_tokens,
           outputTokens: entry.output_tokens,
-          cacheReadTokens: entry.cache_read_tokens || 0,
-          cacheWriteTokens: entry.cache_write_tokens || 0,
-          durationSeconds: entry.duration_seconds,
+          cacheReadTokens:
+            entry.cache_read_input_tokens || entry.cache_read_tokens || 0,
+          cacheWriteTokens:
+            entry.cache_creation_input_tokens || entry.cache_write_tokens || 0,
+          durationSeconds:
+            entry.duration_ms != null
+              ? entry.duration_ms / 1000
+              : entry.duration_seconds,
           sessionId: entry.session_id,
           issueNumber: entry.issue_number,
           model: entry.model || "unknown",
