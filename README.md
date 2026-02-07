@@ -28,12 +28,24 @@ hank-dash /path/to/my-project
 ### Options
 
 ```bash
-hank-dash [project-path] [--port PORT] [--no-open]
+hank-dash [project-path...] [--port PORT] [--no-open]
 
-  project-path   Path to a Hank-managed project (default: cwd)
+  project-path   One or more paths to Hank-managed projects (default: cwd)
   --port PORT    Server port (default: 3274)
   --no-open      Don't auto-open browser
 ```
+
+### Multiple projects
+
+Monitor several Hank projects from a single dashboard:
+
+```bash
+hank-dash /path/to/project-a /path/to/project-b /path/to/project-c
+```
+
+A project switcher dropdown appears in the header when multiple projects are loaded. Each project gets its own file watcher and SSE stream, so updates are isolated per project.
+
+The server watches for `.hank/` directory creation, so you can point at a project before Hank has run there.
 
 ### Without installing globally
 
@@ -48,4 +60,5 @@ node bin/hank-dash.js /path/to/my-project
 - Circuit breaker state gauge with transition history
 - Token efficiency breakdown (input/output/cache)
 - GitHub issue burndown and per-issue cost tracking
+- Multi-project monitoring with project switcher UI
 - Stall detection warnings
