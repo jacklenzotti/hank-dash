@@ -43,7 +43,12 @@
     logToggle: document.getElementById("log-toggle"),
     logContainer: document.getElementById("log-container"),
     logContent: document.getElementById("log-content"),
+    projectSelector: document.getElementById("project-selector"),
   };
+
+  // Active project and SSE state
+  let currentProject = null;
+  let currentEventSource = null;
 
   // Log panel toggle + scroll lock state
   let logScrollLocked = false;
@@ -804,8 +809,18 @@
 
   // --- SSE Connection ---
 
-  function connectSSE() {
-    const eventSource = new EventSource("/api/events");
+  function connectSSE(projectName) {
+    // Close existing connection if any
+    if (currentEventSource) {
+      currentEventSource.close();
+      currentEventSource = null;
+    }
+
+    const url = projectName
+      ? "/api/events?project=" + encodeURIComponent(projectName)
+      : "/api/events";
+    const eventSource = new EventSource(url);
+    currentEventSource = eventSource;
 
     eventSource.onopen = function () {
       els.connectionStatus.textContent = "Connected";
@@ -825,11 +840,60 @@
       els.connectionStatus.textContent = "Disconnected";
       els.connectionStatus.className = "status-badge disconnected";
       eventSource.close();
+      currentEventSource = null;
       // Reconnect after 3 seconds
-      setTimeout(connectSSE, 3000);
+      setTimeout(function () {
+        connectSSE(currentProject);
+      }, 3000);
     };
   }
 
-  // Start SSE connection
-  connectSSE();
+  // --- Project Switcher ---
+
+  function switchProject(projectName) {
+    currentProject = projectName;
+    connectSSE(projectName);
+    // Update page title
+    if (projectName) {
+      document.title = projectName + " — Hank Dashboard";
+    } else {
+      document.title = "Hank Dashboard";
+    }
+  }
+
+  async function initProjects() {
+    try {
+      const res = await fetch("/api/projects");
+      const projects = await res.json();
+
+      if (projects.length > 1 && els.projectSelector) {
+        // Populate selector
+        els.projectSelector.innerHTML = "";
+        for (const p of projects) {
+          const opt = document.createElement("option");
+          opt.value = p.name;
+          opt.textContent = p.name;
+          els.projectSelector.appendChild(opt);
+        }
+        els.projectSelector.style.display = "";
+
+        // Switch on selection change
+        els.projectSelector.addEventListener("change", function () {
+          switchProject(this.value);
+        });
+
+        // Start with first project
+        switchProject(projects[0].name);
+      } else {
+        // Single project — hide selector, connect without project param
+        connectSSE();
+      }
+    } catch {
+      // Fallback: connect without project param (backwards compat)
+      connectSSE();
+    }
+  }
+
+  // Initialize
+  initProjects();
 })();

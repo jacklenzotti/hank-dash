@@ -62,6 +62,22 @@ header h1 {
   color: var(--red);
 }
 
+.project-selector {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.project-selector:focus {
+  outline: 1px solid var(--accent);
+  border-color: var(--accent);
+}
+
 main {
   display: grid;
   grid-template-columns: 1fr 1fr;
