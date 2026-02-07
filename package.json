@@ -1,0 +1,21 @@
+{
+  "name": "hank-dash",
+  "version": "0.1.0",
+  "description": "Live web dashboard for Hank autonomous loop runs",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": [
+    "hank",
+    "claude-code",
+    "dashboard",
+    "monitoring"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
