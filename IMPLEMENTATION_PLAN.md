@@ -11,7 +11,7 @@
 - [x] Static file serving from public/
 - [x] File watcher on .hank/ directory with 300ms debounce
 - [x] CLI entry point (bin/hank-dash.js) with --port, --no-open, --help
-- [x] Server tests — 4 tests covering API, SSE, static serving, 404
+- [x] Server tests — 6 tests covering API, SSE, static serving, 404, e2e smoke tests
 - [x] Frontend: status bar (status, loop count, cost, duration, API calls)
 - [x] Frontend: circuit breaker gauge with transition history
 - [x] Frontend: per-loop cost bar chart
@@ -28,8 +28,9 @@
 - [x] Responsive layout (2-column grid, 1-column on mobile)
 - [x] Directory traversal prevention in static file serving
 - [x] Graceful shutdown (SIGINT/SIGTERM)
+- [x] End-to-end smoke test (HTML sections + API data completeness)
 
-## Remaining
+## Notes
 
-- [ ] End-to-end smoke test (start server, verify HTML loads with all sections)
-- [ ] Frontend test coverage (DOM rendering validation)
+- 27 tests total: 21 parser + 6 server (including 2 e2e smoke tests)
+- Frontend DOM rendering tests are not feasible without a browser/JSDOM dependency, which violates the zero-dependency constraint. The e2e smoke tests cover the critical path (HTML has all sections, API returns all data).

@@ -72,6 +72,65 @@ describe("DashboardServer", () => {
     assert.equal(res.status, 404);
   });
 
+  it("smoke test: HTML contains all dashboard sections", async () => {
+    const port = server.server.address().port;
+    const res = await httpGet(`http://localhost:${port}/`);
+    assert.equal(res.status, 200);
+
+    // Every dashboard section should be present in the served HTML
+    const requiredIds = [
+      "status-bar",
+      "circuit-breaker-section",
+      "stall-section",
+      "cost-section",
+      "cumulative-cost-section",
+      "token-section",
+      "timeline-section",
+      "plan-section",
+      "analysis-section",
+      "issue-section",
+      "exit-section",
+    ];
+    for (const id of requiredIds) {
+      assert.ok(res.body.includes(`id="${id}"`), `HTML missing section: ${id}`);
+    }
+
+    // Verify key interactive elements
+    assert.ok(res.body.includes('id="connection-status"'));
+    assert.ok(res.body.includes('<script src="app.js"></script>'));
+    assert.ok(res.body.includes('<link rel="stylesheet" href="style.css"'));
+  });
+
+  it("smoke test: API data contains all parser sections", async () => {
+    const port = server.server.address().port;
+    const res = await httpGet(`http://localhost:${port}/api/data`);
+    const data = JSON.parse(res.body);
+
+    // Verify all parser keys are present
+    const requiredKeys = [
+      "costLog",
+      "costSession",
+      "circuitBreaker",
+      "circuitBreakerHistory",
+      "responseAnalysis",
+      "exitSignals",
+      "status",
+      "progress",
+      "implementationPlan",
+    ];
+    for (const key of requiredKeys) {
+      assert.ok(key in data, `API response missing key: ${key}`);
+    }
+
+    // Verify data types
+    assert.ok(Array.isArray(data.costLog));
+    assert.ok(Array.isArray(data.circuitBreakerHistory));
+    assert.equal(typeof data.costSession, "object");
+    assert.equal(typeof data.circuitBreaker, "object");
+    assert.equal(typeof data.implementationPlan, "object");
+    assert.ok(data.implementationPlan.totalCount > 0);
+  });
+
   it("serves SSE endpoint", async () => {
     const port = server.server.address().port;
 
