@@ -1,6 +1,6 @@
 # hank-dash
 
-Live web dashboard for [Hank](https://github.com/jacksteamdev/hank) autonomous loop runs.
+Live web dashboard for [Hank](https://github.com/jacklenzotti/hank) autonomous loop runs.
 
 Visualizes cost tracking, circuit breaker state, loop progress, and GitHub issue burndown from Hank's JSON/JSONL output files.
 
