@@ -31,6 +31,10 @@
     analysisFiles: document.getElementById("analysis-files"),
     exitDone: document.getElementById("exit-done"),
     exitTestLoops: document.getElementById("exit-test-loops"),
+    stallSection: document.getElementById("stall-section"),
+    stallContent: document.getElementById("stall-content"),
+    cumulativeCostChart: document.getElementById("cumulative-cost-chart"),
+    issueContent: document.getElementById("issue-content"),
   };
 
   // --- Rendering Functions ---
@@ -206,17 +210,25 @@
 
   function renderTimeline(data) {
     const entries = data.costLog || [];
+    const analysis = data.responseAnalysis;
     if (entries.length === 0) {
       els.loopTimeline.innerHTML =
         '<span style="color:var(--text-muted)">No loops yet</span>';
       return;
     }
 
+    // Show files changed from response analysis on the latest loop
     els.loopTimeline.innerHTML = entries
       .slice()
       .reverse()
-      .map(
-        (e) =>
+      .map((e, idx) => {
+        const filesInfo =
+          idx === 0 && analysis && analysis.filesChanged
+            ? '<span class="timeline-files">' +
+              analysis.filesChanged.length +
+              " files</span>"
+            : "";
+        return (
           '<div class="timeline-entry">' +
           '<span class="timeline-loop">L' +
           e.loop +
@@ -230,8 +242,10 @@
           (e.issueNumber
             ? '<span class="timeline-issue">#' + e.issueNumber + "</span>"
             : "") +
+          filesInfo +
           "</div>"
-      )
+        );
+      })
       .join("");
   }
 
@@ -294,16 +308,181 @@
       .replace(/"/g, "&quot;");
   }
 
+  function renderCumulativeCostChart(data) {
+    const entries = data.costLog || [];
+    if (entries.length === 0) {
+      els.cumulativeCostChart.innerHTML =
+        '<span style="color:var(--text-muted)">No cost data yet</span>';
+      return;
+    }
+
+    // Build cumulative cost array
+    let cumulative = 0;
+    const points = entries.map((e) => {
+      cumulative += e.costUsd;
+      return { loop: e.loop, total: cumulative };
+    });
+
+    const maxCost = points[points.length - 1].total;
+    els.cumulativeCostChart.innerHTML = points
+      .map((p) => {
+        const heightPct = maxCost > 0 ? (p.total / maxCost) * 100 : 0;
+        return (
+          '<div class="chart-bar" style="height:' +
+          heightPct +
+          '%"' +
+          ' title="After Loop ' +
+          p.loop +
+          ": " +
+          formatCost(p.total) +
+          '">' +
+          '<span class="bar-label">' +
+          formatCost(p.total) +
+          "</span>" +
+          '<span class="bar-value">L' +
+          p.loop +
+          "</span>" +
+          "</div>"
+        );
+      })
+      .join("");
+  }
+
+  function renderStallDetection(data) {
+    const cb = data.circuitBreaker;
+    const entries = data.costLog || [];
+    const warnings = [];
+
+    // Check circuit breaker for no-progress stalls
+    if (cb && cb.consecutiveNoProgress >= 2) {
+      warnings.push(
+        '<span class="stall-indicator high">NO PROGRESS</span> ' +
+          cb.consecutiveNoProgress +
+          " consecutive loops without progress"
+      );
+    }
+
+    // Check for repeated same-error pattern
+    if (cb && cb.consecutiveSameError >= 2) {
+      warnings.push(
+        '<span class="stall-indicator high">SAME ERROR</span> ' +
+          cb.consecutiveSameError +
+          " consecutive loops hitting the same error"
+      );
+    }
+
+    // Check for circuit breaker being open
+    if (cb && cb.state === "OPEN") {
+      warnings.push(
+        '<span class="stall-indicator high">CIRCUIT OPEN</span> ' +
+          "Circuit breaker tripped" +
+          (cb.reason ? ": " + escapeHtml(cb.reason) : "")
+      );
+    }
+
+    // Check for cost anomalies — if latest loop cost is 3x the average
+    if (entries.length >= 3) {
+      const avgCost =
+        entries.slice(0, -1).reduce((s, e) => s + e.costUsd, 0) /
+        (entries.length - 1);
+      const latest = entries[entries.length - 1];
+      if (latest.costUsd > avgCost * 3) {
+        warnings.push(
+          '<span class="stall-indicator medium">COST SPIKE</span> ' +
+            "Loop " +
+            latest.loop +
+            " cost (" +
+            formatCost(latest.costUsd) +
+            ") is " +
+            (latest.costUsd / avgCost).toFixed(1) +
+            "x the average (" +
+            formatCost(avgCost) +
+            ")"
+        );
+      }
+    }
+
+    if (warnings.length > 0) {
+      els.stallSection.style.display = "";
+      els.stallContent.innerHTML = warnings.join("<br>");
+    } else {
+      els.stallSection.style.display = "none";
+    }
+  }
+
+  function renderIssueBurndown(data) {
+    const entries = data.costLog || [];
+    if (entries.length === 0) {
+      els.issueContent.innerHTML =
+        '<span style="color:var(--text-muted)">No issue data yet</span>';
+      return;
+    }
+
+    // Group cost entries by issue number
+    const issues = {};
+    for (const e of entries) {
+      const key = e.issueNumber || "unassigned";
+      if (!issues[key]) {
+        issues[key] = { loops: 0, cost: 0, duration: 0, tokens: 0 };
+      }
+      issues[key].loops++;
+      issues[key].cost += e.costUsd;
+      issues[key].duration += e.durationSeconds;
+      issues[key].tokens += e.inputTokens + e.outputTokens;
+    }
+
+    const rows = Object.entries(issues)
+      .sort((a, b) => b[1].cost - a[1].cost)
+      .map(([issue, stats]) => {
+        const issueLabel =
+          issue === "unassigned"
+            ? '<span style="color:var(--text-muted)">unassigned</span>'
+            : '<span class="issue-number">#' +
+              escapeHtml(String(issue)) +
+              "</span>";
+        return (
+          "<tr>" +
+          "<td>" +
+          issueLabel +
+          "</td>" +
+          "<td>" +
+          stats.loops +
+          "</td>" +
+          "<td>" +
+          formatCost(stats.cost) +
+          "</td>" +
+          "<td>" +
+          formatDuration(stats.duration) +
+          "</td>" +
+          "<td>" +
+          (stats.tokens / 1000).toFixed(1) +
+          "k</td>" +
+          "</tr>"
+        );
+      })
+      .join("");
+
+    els.issueContent.innerHTML =
+      '<table class="issue-table">' +
+      "<thead><tr><th>Issue</th><th>Loops</th><th>Cost</th><th>Duration</th><th>Tokens</th></tr></thead>" +
+      "<tbody>" +
+      rows +
+      "</tbody></table>";
+  }
+
   // --- Main Update Function ---
 
   function updateDashboard(data) {
     renderStatusBar(data);
     renderCircuitBreaker(data);
+    renderStallDetection(data);
     renderCostChart(data);
+    renderCumulativeCostChart(data);
     renderTokenChart(data);
     renderTimeline(data);
     renderPlan(data);
     renderAnalysis(data);
+    renderIssueBurndown(data);
     renderExitSignals(data);
   }
 
