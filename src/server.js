@@ -36,6 +36,7 @@ class DashboardServer {
 
     // Build projects map: name → project state
     this.projects = new Map();
+    this.pollTimer = null;
     for (const p of paths) {
       const resolved = path.resolve(p);
       const name = path.basename(resolved);
@@ -287,6 +288,12 @@ class DashboardServer {
         for (const [name] of this.projects) {
           this.startWatching(name);
         }
+        // Poll every 5s for process info (not triggered by file watchers)
+        this.pollTimer = setInterval(() => {
+          for (const [name] of this.projects) {
+            this.broadcastUpdate(name);
+          }
+        }, 5000);
         resolve(this.server);
       });
     });
@@ -296,6 +303,8 @@ class DashboardServer {
    * Stop the server and all file watchers.
    */
   stop() {
+    clearInterval(this.pollTimer);
+    this.pollTimer = null;
     for (const proj of this.projects.values()) {
       if (proj.parentWatcher) {
         proj.parentWatcher.close();

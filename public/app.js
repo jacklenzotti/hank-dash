@@ -44,6 +44,7 @@
     logContainer: document.getElementById("log-container"),
     logContent: document.getElementById("log-content"),
     projectSelector: document.getElementById("project-selector"),
+    processesContent: document.getElementById("processes-content"),
   };
 
   // Active project and SSE state
@@ -785,11 +786,135 @@
       .join("");
   }
 
+  function formatElapsed(elapsed) {
+    if (!elapsed) return "—";
+    // ps etime format: [[DD-]HH:]MM:SS
+    return elapsed;
+  }
+
+  function truncateCommand(cmd, maxLen) {
+    if (!cmd) return "—";
+    return cmd.length > maxLen ? cmd.substring(0, maxLen) + "..." : cmd;
+  }
+
+  function renderProcesses(data) {
+    const procs = data.processes;
+    if (!procs) {
+      els.processesContent.innerHTML =
+        '<span style="color:var(--text-muted)">No process data</span>';
+      return;
+    }
+
+    var html = "";
+
+    // Tmux sessions
+    if (procs.tmuxSessions.length > 0) {
+      html +=
+        '<div class="proc-group"><h3 class="proc-group-title">Tmux Sessions</h3>' +
+        '<table class="issue-table"><thead><tr>' +
+        "<th>Session</th><th>Windows</th><th>Status</th>" +
+        "</tr></thead><tbody>";
+      for (var i = 0; i < procs.tmuxSessions.length; i++) {
+        var s = procs.tmuxSessions[i];
+        if (s.raw) {
+          html += '<tr><td colspan="3">' + escapeHtml(s.raw) + "</td></tr>";
+        } else {
+          html +=
+            "<tr><td>" +
+            escapeHtml(s.name) +
+            "</td><td>" +
+            (s.windows || "—") +
+            "</td><td>" +
+            (s.attached
+              ? '<span class="proc-attached">attached</span>'
+              : '<span class="proc-detached">detached</span>') +
+            "</td></tr>";
+        }
+      }
+      html += "</tbody></table></div>";
+    }
+
+    // Hank loops
+    if (procs.hankProcesses.length > 0) {
+      html +=
+        '<div class="proc-group"><h3 class="proc-group-title">Hank Loops</h3>' +
+        '<table class="issue-table"><thead><tr>' +
+        "<th>PID</th><th>Elapsed</th><th>Command</th>" +
+        "</tr></thead><tbody>";
+      for (var i = 0; i < procs.hankProcesses.length; i++) {
+        var p = procs.hankProcesses[i];
+        html +=
+          "<tr><td>" +
+          p.pid +
+          "</td><td>" +
+          escapeHtml(formatElapsed(p.elapsed)) +
+          "</td><td>" +
+          escapeHtml(truncateCommand(p.command, 80)) +
+          "</td></tr>";
+      }
+      html += "</tbody></table></div>";
+    }
+
+    // Claude instances
+    if (procs.claudeProcesses.length > 0) {
+      html +=
+        '<div class="proc-group"><h3 class="proc-group-title">Claude Instances</h3>' +
+        '<table class="issue-table"><thead><tr>' +
+        "<th>PID</th><th>PPID</th><th>Elapsed</th><th>Command</th>" +
+        "</tr></thead><tbody>";
+      for (var i = 0; i < procs.claudeProcesses.length; i++) {
+        var p = procs.claudeProcesses[i];
+        html +=
+          "<tr><td>" +
+          p.pid +
+          "</td><td>" +
+          p.ppid +
+          "</td><td>" +
+          escapeHtml(formatElapsed(p.elapsed)) +
+          "</td><td>" +
+          escapeHtml(truncateCommand(p.command, 80)) +
+          "</td></tr>";
+      }
+      html += "</tbody></table></div>";
+    }
+
+    // Orphans
+    if (procs.orphans.length > 0) {
+      html +=
+        '<div class="proc-group proc-orphans"><h3 class="proc-group-title">Orphaned Processes</h3>' +
+        '<table class="issue-table"><thead><tr>' +
+        "<th>PID</th><th>PPID</th><th>Elapsed</th><th>Command</th>" +
+        "</tr></thead><tbody>";
+      for (var i = 0; i < procs.orphans.length; i++) {
+        var p = procs.orphans[i];
+        html +=
+          '<tr class="orphan-row"><td>' +
+          p.pid +
+          "</td><td>" +
+          p.ppid +
+          "</td><td>" +
+          escapeHtml(formatElapsed(p.elapsed)) +
+          "</td><td>" +
+          escapeHtml(truncateCommand(p.command, 80)) +
+          "</td></tr>";
+      }
+      html += "</tbody></table></div>";
+    }
+
+    if (!html) {
+      html =
+        '<span style="color:var(--text-muted)">No hank-related processes running</span>';
+    }
+
+    els.processesContent.innerHTML = html;
+  }
+
   // --- Main Update Function ---
 
   function updateDashboard(data) {
     renderStatusBar(data);
     renderCircuitBreaker(data);
+    renderProcesses(data);
     renderStallDetection(data);
     renderCostChart(data);
     renderCumulativeCostChart(data);
