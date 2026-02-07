@@ -1,5 +1,4 @@
 node_modules/
 .hank/
-.hankrc
 *.log
 .DS_Store
