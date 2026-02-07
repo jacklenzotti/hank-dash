@@ -27,7 +27,7 @@ const MIME_TYPES = {
 
 class DashboardServer {
   constructor(projectPaths, options = {}) {
-    this.port = options.port || DEFAULT_PORT;
+    this.port = options.port != null ? options.port : DEFAULT_PORT;
     this.emitter = new EventEmitter();
     this.server = null;
 
