@@ -1,0 +1,1 @@
+{"confidence":0.60,"files_changed":["lib/api.js"],"signals":{"tests_passing":false,"new_errors":true,"progress_made":false,"stuck_pattern":true},"summary":"Stuck on API integration","loop":8}

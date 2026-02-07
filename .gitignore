@@ -2,3 +2,5 @@ node_modules/
 .hank/
 *.log
 .DS_Store
+test-results/
+.mcp.json
