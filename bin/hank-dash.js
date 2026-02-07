@@ -2,10 +2,10 @@
 
 /**
  * CLI entry point for hank-dash.
- * Usage: hank-dash [project-path] [--port PORT] [--no-open]
+ * Usage: hank-dash [project-path...] [--port PORT] [--no-open]
  *
- * Starts the dashboard server pointed at a Hank-managed project directory
- * and optionally opens the browser.
+ * Starts the dashboard server pointed at one or more Hank-managed project
+ * directories and optionally opens the browser.
  */
 
 const { DashboardServer } = require("../src/server");
@@ -16,7 +16,7 @@ const DEFAULT_PORT = 3274;
 function parseArgs(argv) {
   const args = argv.slice(2);
   const result = {
-    projectPath: process.cwd(),
+    projectPaths: [],
     port: DEFAULT_PORT,
     open: true,
   };
@@ -28,15 +28,19 @@ function parseArgs(argv) {
     } else if (args[i] === "--no-open") {
       result.open = false;
     } else if (args[i] === "--help" || args[i] === "-h") {
-      console.log(`Usage: hank-dash [project-path] [--port PORT] [--no-open]
+      console.log(`Usage: hank-dash [project-path...] [--port PORT] [--no-open]
 
-  project-path   Path to a Hank-managed project (default: cwd)
+  project-path   Path(s) to Hank-managed project(s) (default: cwd)
   --port PORT    Server port (default: ${DEFAULT_PORT})
   --no-open      Don't auto-open browser`);
       process.exit(0);
     } else if (!args[i].startsWith("-")) {
-      result.projectPath = args[i];
+      result.projectPaths.push(args[i]);
     }
+  }
+
+  if (result.projectPaths.length === 0) {
+    result.projectPaths.push(process.cwd());
   }
 
   return result;
@@ -61,7 +65,11 @@ function openBrowser(url) {
 
 async function main() {
   const config = parseArgs(process.argv);
-  const server = new DashboardServer(config.projectPath, { port: config.port });
+  const paths =
+    config.projectPaths.length === 1
+      ? config.projectPaths[0]
+      : config.projectPaths;
+  const server = new DashboardServer(paths, { port: config.port });
 
   try {
     await server.start();
