@@ -15,9 +15,16 @@ const { parseStatus } = require("./status");
 const { parseProgress } = require("./progress");
 const { parseImplementationPlan } = require("./implementation-plan");
 
+function filterToLatestSession(entries) {
+  if (entries.length === 0) return entries;
+  const lastSessionId = entries[entries.length - 1].sessionId;
+  if (!lastSessionId) return entries;
+  return entries.filter((e) => e.sessionId === lastSessionId);
+}
+
 function parseAll(hankDir) {
   return {
-    costLog: parseCostLog(hankDir),
+    costLog: filterToLatestSession(parseCostLog(hankDir)),
     costSession: parseCostSession(hankDir),
     circuitBreaker: parseCircuitBreakerState(hankDir),
     circuitBreakerHistory: parseCircuitBreakerHistory(hankDir),

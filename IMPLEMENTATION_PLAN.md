@@ -35,6 +35,7 @@
 - [x] Server: parent watcher tracked and cleaned up on stop() to prevent memory leaks
 - [x] Stall detection: cost spike check guards against avgCost=0 false positives
 - [x] Malformed JSON tests — 8 tests verifying parser resilience to corrupted files
+- [x] Session filtering: parseAll filters cost log to current session only (filterToLatestSession)
 
 ## Notes
 
