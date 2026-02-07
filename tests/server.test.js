@@ -89,6 +89,11 @@ describe("DashboardServer", () => {
       "plan-section",
       "analysis-section",
       "issue-section",
+      "model-section",
+      "cache-section",
+      "velocity-section",
+      "session-history-section",
+      "log-section",
       "exit-section",
     ];
     for (const id of requiredIds) {
@@ -117,6 +122,8 @@ describe("DashboardServer", () => {
       "status",
       "progress",
       "implementationPlan",
+      "liveLog",
+      "sessionHistory",
     ];
     for (const key of requiredKeys) {
       assert.ok(key in data, `API response missing key: ${key}`);

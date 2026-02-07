@@ -14,6 +14,8 @@ const { parseExitSignals } = require("./exit-signals");
 const { parseStatus } = require("./status");
 const { parseProgress } = require("./progress");
 const { parseImplementationPlan } = require("./implementation-plan");
+const { parseLiveLog } = require("./live-log");
+const { parseSessionHistory } = require("./session-history");
 
 function filterToLatestSession(entries) {
   if (entries.length === 0) return entries;
@@ -33,6 +35,8 @@ function parseAll(hankDir) {
     status: parseStatus(hankDir),
     progress: parseProgress(hankDir),
     implementationPlan: parseImplementationPlan(hankDir),
+    liveLog: parseLiveLog(hankDir),
+    sessionHistory: parseSessionHistory(hankDir),
   };
 }
 
@@ -47,4 +51,6 @@ module.exports = {
   parseStatus,
   parseProgress,
   parseImplementationPlan,
+  parseLiveLog,
+  parseSessionHistory,
 };

@@ -36,8 +36,18 @@
 - [x] Stall detection: cost spike check guards against avgCost=0 false positives
 - [x] Malformed JSON tests — 8 tests verifying parser resilience to corrupted files
 - [x] Session filtering: parseAll filters cost log to current session only (filterToLatestSession)
+- [x] [#12] Model usage breakdown — table grouped by model with loops, cost, tokens
+- [x] [#8] Cache hit rate metric — per-loop bar chart with color-coded thresholds
+- [x] [#10] Estimated remaining cost/time — in status bar, computed from plan completion rate
+- [x] [#9] Cost velocity tracking — \$/min per loop bar chart with color-coded spikes, integrated into stall detection
+- [x] [#7] Live log tail panel — collapsible terminal-style panel, auto-scroll with scroll-lock, reads .hank/live.log
+- [x] [#11] Session history — parser for .hank_session_history, table with date/loops/cost/duration/exit reason
+- [x] Bug fix: updateDashboard was not calling renderModelBreakdown, renderCacheHitRate, renderEstimatedRemaining
+- [x] New parsers: live-log.js (text file), session-history.js (JSON array)
+- [x] Tests expanded: 41 tests total (27 parser + 8 malformed JSON + 6 server)
+- [x] Smoke tests updated to verify new HTML sections and API data keys
 
 ## Notes
 
-- 35 tests total: 21 parser + 8 malformed JSON resilience + 6 server (including 2 e2e smoke tests)
+- 41 tests total: 27 parser + 8 malformed JSON resilience + 6 server (including 2 e2e smoke tests)
 - Frontend DOM rendering tests are not feasible without a browser/JSDOM dependency, which violates the zero-dependency constraint. The e2e smoke tests cover the critical path (HTML has all sections, API returns all data).

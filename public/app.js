@@ -35,7 +35,33 @@
     stallContent: document.getElementById("stall-content"),
     cumulativeCostChart: document.getElementById("cumulative-cost-chart"),
     issueContent: document.getElementById("issue-content"),
+    modelContent: document.getElementById("model-content"),
+    cacheChart: document.getElementById("cache-chart"),
+    estRemaining: document.getElementById("est-remaining"),
+    velocityChart: document.getElementById("velocity-chart"),
+    sessionHistoryContent: document.getElementById("session-history-content"),
+    logToggle: document.getElementById("log-toggle"),
+    logContainer: document.getElementById("log-container"),
+    logContent: document.getElementById("log-content"),
   };
+
+  // Log panel toggle + scroll lock state
+  let logScrollLocked = false;
+  if (els.logToggle) {
+    els.logToggle.addEventListener("click", function () {
+      const expanded = this.getAttribute("aria-expanded") === "true";
+      this.setAttribute("aria-expanded", String(!expanded));
+      els.logContainer.style.display = expanded ? "none" : "";
+    });
+  }
+  if (els.logContent) {
+    els.logContent.addEventListener("scroll", function () {
+      // Lock auto-scroll when user scrolls up, unlock when at bottom
+      const atBottom =
+        this.scrollHeight - this.scrollTop - this.clientHeight < 20;
+      logScrollLocked = !atBottom;
+    });
+  }
 
   // --- Rendering Functions ---
 
@@ -411,6 +437,32 @@
       }
     }
 
+    // Check for cost velocity spikes — $/min exceeding 3x average
+    if (entries.length >= 3) {
+      const velocities = entries.map((e) => {
+        const dMin = (e.durationSeconds || 0) / 60;
+        return dMin > 0 ? loopCost(e) / dMin : 0;
+      });
+      const priorVelocities = velocities.slice(0, -1);
+      const avgVel =
+        priorVelocities.reduce((s, v) => s + v, 0) / priorVelocities.length;
+      const latestVel = velocities[velocities.length - 1];
+      if (avgVel > 0 && latestVel > avgVel * 3) {
+        warnings.push(
+          '<span class="stall-indicator medium">BURN RATE</span> ' +
+            "Loop " +
+            entries[entries.length - 1].loop +
+            " velocity ($" +
+            latestVel.toFixed(4) +
+            "/min) is " +
+            (latestVel / avgVel).toFixed(1) +
+            "x the average ($" +
+            avgVel.toFixed(4) +
+            "/min)"
+        );
+      }
+    }
+
     if (warnings.length > 0) {
       els.stallSection.style.display = "";
       els.stallContent.innerHTML = warnings.join("<br>");
@@ -479,6 +531,255 @@
       "</tbody></table>";
   }
 
+  function renderModelBreakdown(data) {
+    const entries = data.costLog || [];
+    if (entries.length === 0) {
+      els.modelContent.innerHTML =
+        '<span style="color:var(--text-muted)">No model data yet</span>';
+      return;
+    }
+
+    // Group by model
+    const models = {};
+    for (const e of entries) {
+      const model = e.model || "unknown";
+      if (!models[model]) {
+        models[model] = { loops: 0, cost: 0, inputTokens: 0, outputTokens: 0 };
+      }
+      models[model].loops++;
+      models[model].cost += loopCost(e);
+      models[model].inputTokens += e.inputTokens || 0;
+      models[model].outputTokens += e.outputTokens || 0;
+    }
+
+    const rows = Object.entries(models)
+      .sort((a, b) => b[1].cost - a[1].cost)
+      .map(([model, stats]) => {
+        const totalTokens = stats.inputTokens + stats.outputTokens;
+        return (
+          "<tr>" +
+          "<td>" +
+          escapeHtml(model) +
+          "</td>" +
+          "<td>" +
+          stats.loops +
+          "</td>" +
+          "<td>" +
+          formatCost(stats.cost) +
+          "</td>" +
+          "<td>" +
+          (totalTokens / 1000).toFixed(1) +
+          "k</td>" +
+          "</tr>"
+        );
+      })
+      .join("");
+
+    els.modelContent.innerHTML =
+      '<table class="issue-table">' +
+      "<thead><tr><th>Model</th><th>Loops</th><th>Cost</th><th>Tokens</th></tr></thead>" +
+      "<tbody>" +
+      rows +
+      "</tbody></table>";
+  }
+
+  function renderCacheHitRate(data) {
+    const entries = data.costLog || [];
+    if (entries.length === 0) {
+      els.cacheChart.innerHTML =
+        '<span style="color:var(--text-muted)">No cache data yet</span>';
+      return;
+    }
+
+    const rates = entries.map((e) => {
+      const totalInput =
+        (e.inputTokens || 0) +
+        (e.cacheReadTokens || 0) +
+        (e.cacheWriteTokens || 0);
+      return {
+        loop: e.loop,
+        rate:
+          totalInput > 0 ? ((e.cacheReadTokens || 0) / totalInput) * 100 : 0,
+      };
+    });
+
+    els.cacheChart.innerHTML = rates
+      .map((r) => {
+        const cls =
+          r.rate >= 50
+            ? "cache-bar-high"
+            : r.rate >= 25
+            ? "cache-bar-mid"
+            : "cache-bar-low";
+        return (
+          '<div class="chart-bar ' +
+          cls +
+          '" style="height:' +
+          r.rate +
+          '%"' +
+          ' title="Loop ' +
+          r.loop +
+          ": " +
+          r.rate.toFixed(1) +
+          '% cache hit">' +
+          '<span class="bar-label">' +
+          r.rate.toFixed(0) +
+          "%</span>" +
+          '<span class="bar-value">L' +
+          r.loop +
+          "</span>" +
+          "</div>"
+        );
+      })
+      .join("");
+  }
+
+  function renderEstimatedRemaining(data) {
+    const plan = data.implementationPlan;
+    const entries = data.costLog || [];
+    if (
+      !plan ||
+      plan.totalCount === 0 ||
+      plan.completedCount === 0 ||
+      entries.length === 0
+    ) {
+      els.estRemaining.textContent = "—";
+      return;
+    }
+
+    const totalCost = entries.reduce((sum, e) => sum + loopCost(e), 0);
+    const totalDuration = entries.reduce(
+      (sum, e) => sum + (e.durationSeconds || 0),
+      0
+    );
+    const remaining = plan.totalCount - plan.completedCount;
+    const costPerTask = totalCost / plan.completedCount;
+    const durationPerTask = totalDuration / plan.completedCount;
+
+    const estCost = costPerTask * remaining;
+    const estDuration = durationPerTask * remaining;
+
+    els.estRemaining.textContent =
+      formatCost(estCost) + " / " + formatDuration(estDuration);
+  }
+
+  function renderSessionHistory(data) {
+    const sessions = data.sessionHistory || [];
+    if (sessions.length === 0) {
+      els.sessionHistoryContent.innerHTML =
+        '<span style="color:var(--text-muted)">No session history yet</span>';
+      return;
+    }
+
+    const rows = sessions
+      .slice()
+      .reverse()
+      .map((s) => {
+        const cost =
+          s.total_cost_usd != null ? s.total_cost_usd : s.totalCostUsd;
+        const duration =
+          s.total_duration_seconds != null
+            ? s.total_duration_seconds
+            : s.totalDurationSeconds;
+        const loops = s.loops || s.loop_count || "—";
+        const exitReason = s.exit_reason || s.exitReason || "—";
+        const startedAt = s.started_at || s.startedAt || "";
+        const dateStr = startedAt ? new Date(startedAt).toLocaleString() : "—";
+        return (
+          "<tr>" +
+          "<td>" +
+          escapeHtml(dateStr) +
+          "</td>" +
+          "<td>" +
+          loops +
+          "</td>" +
+          "<td>" +
+          formatCost(cost) +
+          "</td>" +
+          "<td>" +
+          formatDuration(duration) +
+          "</td>" +
+          "<td>" +
+          escapeHtml(String(exitReason)) +
+          "</td>" +
+          "</tr>"
+        );
+      })
+      .join("");
+
+    els.sessionHistoryContent.innerHTML =
+      '<table class="issue-table">' +
+      "<thead><tr><th>Started</th><th>Loops</th><th>Cost</th><th>Duration</th><th>Exit Reason</th></tr></thead>" +
+      "<tbody>" +
+      rows +
+      "</tbody></table>";
+  }
+
+  function renderLiveLog(data) {
+    const lines = data.liveLog || [];
+    if (lines.length === 0) {
+      els.logContent.textContent = "No log output yet...";
+      return;
+    }
+    els.logContent.textContent = lines.join("\n");
+    // Auto-scroll to bottom unless user has scrolled up
+    if (!logScrollLocked) {
+      els.logContent.scrollTop = els.logContent.scrollHeight;
+    }
+  }
+
+  function renderCostVelocity(data) {
+    const entries = data.costLog || [];
+    if (entries.length === 0) {
+      els.velocityChart.innerHTML =
+        '<span style="color:var(--text-muted)">No velocity data yet</span>';
+      return;
+    }
+
+    const velocities = entries.map((e) => {
+      const durationMin = (e.durationSeconds || 0) / 60;
+      return {
+        loop: e.loop,
+        velocity: durationMin > 0 ? loopCost(e) / durationMin : 0,
+      };
+    });
+
+    const maxVel = Math.max(...velocities.map((v) => v.velocity));
+    els.velocityChart.innerHTML = velocities
+      .map((v) => {
+        const heightPct = maxVel > 0 ? (v.velocity / maxVel) * 100 : 0;
+        // Color-code: high velocity (>3x avg) is red, moderate is yellow, normal is accent
+        const avgVel =
+          velocities.reduce((s, x) => s + x.velocity, 0) / velocities.length;
+        const cls =
+          avgVel > 0 && v.velocity > avgVel * 3
+            ? "velocity-high"
+            : avgVel > 0 && v.velocity > avgVel * 1.5
+            ? "velocity-mid"
+            : "";
+        return (
+          '<div class="chart-bar ' +
+          cls +
+          '" style="height:' +
+          heightPct +
+          '%"' +
+          ' title="Loop ' +
+          v.loop +
+          ": $" +
+          v.velocity.toFixed(4) +
+          '/min">' +
+          '<span class="bar-label">$' +
+          v.velocity.toFixed(3) +
+          "</span>" +
+          '<span class="bar-value">L' +
+          v.loop +
+          "</span>" +
+          "</div>"
+        );
+      })
+      .join("");
+  }
+
   // --- Main Update Function ---
 
   function updateDashboard(data) {
@@ -492,6 +793,12 @@
     renderPlan(data);
     renderAnalysis(data);
     renderIssueBurndown(data);
+    renderModelBreakdown(data);
+    renderCacheHitRate(data);
+    renderEstimatedRemaining(data);
+    renderCostVelocity(data);
+    renderSessionHistory(data);
+    renderLiveLog(data);
     renderExitSignals(data);
   }
 

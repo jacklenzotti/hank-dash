@@ -415,11 +415,82 @@ main {
   font-weight: 600;
 }
 
+/* Cache hit rate bar colors */
+.chart-bar.cache-bar-high {
+  background: var(--green);
+}
+.chart-bar.cache-bar-mid {
+  background: var(--yellow);
+}
+.chart-bar.cache-bar-low {
+  background: var(--red);
+}
+
+/* Cost velocity bar colors */
+.chart-bar.velocity-high {
+  background: var(--red);
+}
+.chart-bar.velocity-mid {
+  background: var(--yellow);
+}
+
 /* Files changed in timeline */
 .timeline-files {
   color: var(--text-muted);
   font-size: 11px;
   margin-left: auto;
+}
+
+/* Live Log Panel */
+.log-card {
+  grid-column: 1 / -1;
+}
+
+.log-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+}
+
+.log-toggle:hover {
+  color: var(--text);
+}
+
+.toggle-icon {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.log-toggle[aria-expanded="true"] .toggle-icon {
+  transform: rotate(90deg);
+}
+
+.log-container {
+  margin-top: 8px;
+}
+
+.log-content {
+  background: #010409;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text);
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 /* Responsive */

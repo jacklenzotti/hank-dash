@@ -38,6 +38,10 @@
             <span class="label">API Calls</span>
             <span id="api-calls" class="value">—</span>
           </div>
+          <div class="status-item">
+            <span class="label">Est. Remaining</span>
+            <span id="est-remaining" class="value">—</span>
+          </div>
         </div>
       </section>
 
@@ -136,6 +140,24 @@
         <div id="issue-content"></div>
       </section>
 
+      <!-- Model Usage Breakdown -->
+      <section id="model-section" class="card">
+        <h2>Model Usage</h2>
+        <div id="model-content"></div>
+      </section>
+
+      <!-- Cache Hit Rate -->
+      <section id="cache-section" class="card">
+        <h2>Cache Hit Rate</h2>
+        <div id="cache-chart" class="chart-container"></div>
+      </section>
+
+      <!-- Cost Velocity -->
+      <section id="velocity-section" class="card">
+        <h2>Cost Velocity ($/min)</h2>
+        <div id="velocity-chart" class="chart-container"></div>
+      </section>
+
       <!-- Exit Signals -->
       <section id="exit-section" class="card">
         <h2>Exit Signals</h2>
@@ -148,6 +170,24 @@
             <span class="label">Test-Only Loops:</span>
             <span id="exit-test-loops">—</span>
           </div>
+        </div>
+      </section>
+
+      <!-- Session History -->
+      <section id="session-history-section" class="card">
+        <h2>Session History</h2>
+        <div id="session-history-content"></div>
+      </section>
+
+      <!-- Live Log Tail -->
+      <section id="log-section" class="card log-card">
+        <h2>
+          <button id="log-toggle" class="log-toggle" aria-expanded="false">
+            Live Log <span class="toggle-icon">&#9654;</span>
+          </button>
+        </h2>
+        <div id="log-container" class="log-container" style="display: none;">
+          <pre id="log-content" class="log-content"></pre>
         </div>
       </section>
     </main>
