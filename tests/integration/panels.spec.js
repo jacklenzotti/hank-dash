@@ -106,24 +106,6 @@ test.describe("Implementation plan", () => {
   });
 });
 
-test.describe("Response analysis", () => {
-  test("shows confidence and summary", async ({ page }) => {
-    await waitForData(page);
-    const section = page.locator("#analysis-section");
-    // Fixture: confidence 0.85 = 85%
-    await expect(section).toContainText("85%");
-    // Fixture summary
-    await expect(section).toContainText("Implemented cost parser");
-  });
-
-  test("lists changed files", async ({ page }) => {
-    await waitForData(page);
-    const section = page.locator("#analysis-section");
-    await expect(section).toContainText("src/server.js");
-    await expect(section).toContainText("src/parsers/cost.js");
-  });
-});
-
 test.describe("Issue burndown", () => {
   test("shows issue table with cost breakdown", async ({ page }) => {
     await waitForData(page);

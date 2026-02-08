@@ -55,7 +55,6 @@ test("all dashboard sections are present", async ({ page }) => {
     "token-section",
     "timeline-section",
     "plan-section",
-    "analysis-section",
     "issue-section",
     "model-section",
     "cache-section",

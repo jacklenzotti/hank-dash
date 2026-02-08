@@ -22,7 +22,7 @@ SESSION_EXPIRY_HOURS=24
 # Task sources (for hank enable --sync)
 # Options: local, beads, github (comma-separated for multiple)
 TASK_SOURCES="github,local"
-GITHUB_TASK_LABEL="hank-task"
+GITHUB_TASK_LABEL="hank"
 BEADS_FILTER="status:open"
 
 # Circuit breaker thresholds
