@@ -219,6 +219,42 @@
         <h2>Retry Activity</h2>
         <div id="retry-activity-content"></div>
       </section>
+
+      <!-- Audit Log Timeline -->
+      <section id="audit-timeline-section" class="card">
+        <h2>Audit Timeline</h2>
+        <div id="audit-timeline-controls">
+          <label>
+            <input type="checkbox" id="audit-filter-errors" checked />
+            Errors
+          </label>
+          <label>
+            <input type="checkbox" id="audit-filter-circuit-breaker" checked />
+            Circuit Breaker
+          </label>
+          <label>
+            <input type="checkbox" id="audit-filter-completion" checked />
+            Completion
+          </label>
+          <label>
+            <input type="checkbox" id="audit-filter-info" checked />
+            Info
+          </label>
+        </div>
+        <div id="audit-timeline-content"></div>
+      </section>
+
+      <!-- Session Replay -->
+      <section id="session-replay-section" class="card">
+        <h2>Session Replay</h2>
+        <div id="session-replay-controls">
+          <label for="session-selector">Select Session:</label>
+          <select id="session-selector">
+            <option value="">-- Choose a session --</option>
+          </select>
+        </div>
+        <div id="session-replay-content"></div>
+      </section>
     </main>
 
     <script src="app.js"></script>

@@ -1,0 +1,7 @@
+{"type":"info","timestamp":"2026-01-15T10:00:00Z","session_id":"sess_001","loop":1,"message":"Loop started","details":{"task":"implement feature"}}
+{"type":"circuit-breaker","timestamp":"2026-01-15T10:05:00Z","session_id":"sess_001","loop":2,"message":"Circuit breaker opened","details":{"reason":"same_error"}}
+{"type":"error","timestamp":"2026-01-15T10:10:00Z","session_id":"sess_001","loop":2,"message":"Failed to compile","details":{"error":"SyntaxError: Unexpected token"}}
+{"type":"completion","timestamp":"2026-01-15T10:15:00Z","session_id":"sess_001","loop":3,"message":"Tests passing","details":{"test_count":42}}
+{"type":"info","timestamp":"2026-01-15T11:00:00Z","session_id":"sess_002","loop":1,"message":"New session started","details":{}}
+{"type":"error","timestamp":"2026-01-15T11:05:00Z","session_id":"sess_002","loop":1,"message":"Import error","details":{"module":"@types/node"}}
+{"type":"completion","timestamp":"2026-01-15T11:10:00Z","session_id":"sess_002","loop":2,"message":"All tests passing","details":{"exit_signal":true}}

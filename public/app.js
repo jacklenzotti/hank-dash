@@ -1091,6 +1091,185 @@
     container.innerHTML = html;
   }
 
+  function renderAuditTimeline(data) {
+    const audit = data.auditLog;
+    const container = document.getElementById("audit-timeline-content");
+    if (!container) return;
+
+    if (!audit || audit.events.length === 0) {
+      container.innerHTML =
+        '<div class="empty-state">No audit events yet</div>';
+      return;
+    }
+
+    // Get filter states
+    const filterErrors =
+      document.getElementById("audit-filter-errors")?.checked ?? true;
+    const filterCircuitBreaker =
+      document.getElementById("audit-filter-circuit-breaker")?.checked ?? true;
+    const filterCompletion =
+      document.getElementById("audit-filter-completion")?.checked ?? true;
+    const filterInfo =
+      document.getElementById("audit-filter-info")?.checked ?? true;
+
+    // Filter events based on selected types
+    const filteredEvents = audit.events.filter((event) => {
+      if (event.type === "error" && !filterErrors) return false;
+      if (event.type === "circuit-breaker" && !filterCircuitBreaker)
+        return false;
+      if (event.type === "completion" && !filterCompletion) return false;
+      if (event.type === "info" && !filterInfo) return false;
+      return true;
+    });
+
+    let html = '<div class="audit-timeline">';
+
+    filteredEvents.forEach((event) => {
+      const timestamp = event.timestamp
+        ? new Date(event.timestamp).toLocaleString()
+        : "—";
+      const eventClass = event.type.toLowerCase().replace(/_/g, "-");
+
+      html += '<div class="audit-event ' + eventClass + '">';
+      html +=
+        '<span class="audit-type-badge ' +
+        eventClass +
+        '">' +
+        escapeHtml(event.type) +
+        "</span>";
+      html += '<div class="audit-details">';
+      html +=
+        '<div class="audit-message">' + escapeHtml(event.message) + "</div>";
+      html += '<div class="audit-meta">';
+      if (event.sessionId) {
+        html += "Session: " + escapeHtml(event.sessionId) + " &nbsp;|&nbsp; ";
+      }
+      if (event.loop) {
+        html += "Loop: " + event.loop + " &nbsp;|&nbsp; ";
+      }
+      if (event.details && Object.keys(event.details).length > 0) {
+        html += "Details: " + escapeHtml(JSON.stringify(event.details));
+      }
+      html += "</div>";
+      html += "</div>";
+      html +=
+        '<div class="audit-timestamp">' + escapeHtml(timestamp) + "</div>";
+      html += "</div>";
+    });
+
+    html += "</div>";
+    container.innerHTML = html;
+  }
+
+  function renderSessionReplay(data) {
+    const audit = data.auditLog;
+    const selector = document.getElementById("session-selector");
+    const container = document.getElementById("session-replay-content");
+    if (!selector || !container) return;
+
+    if (!audit || Object.keys(audit.sessions).length === 0) {
+      selector.innerHTML =
+        '<option value="">-- No sessions available --</option>';
+      container.innerHTML =
+        '<div class="empty-state">No session data yet</div>';
+      return;
+    }
+
+    // Populate session selector
+    const currentSelection = selector.value;
+    const sessionIds = Object.keys(audit.sessions).sort().reverse(); // Most recent first
+
+    let optionsHtml = '<option value="">-- Choose a session --</option>';
+    sessionIds.forEach((sessionId) => {
+      const selected = sessionId === currentSelection ? " selected" : "";
+      optionsHtml +=
+        '<option value="' +
+        escapeHtml(sessionId) +
+        '"' +
+        selected +
+        ">" +
+        escapeHtml(sessionId) +
+        "</option>";
+    });
+    selector.innerHTML = optionsHtml;
+
+    // Render selected session
+    if (!currentSelection || !audit.sessions[currentSelection]) {
+      container.innerHTML =
+        '<div class="empty-state">Select a session to view its timeline</div>';
+      return;
+    }
+
+    const events = audit.sessions[currentSelection];
+
+    // Session summary
+    let html = '<div class="session-summary">';
+    html += '<div class="session-summary-row">';
+    html += '<div class="session-summary-item">';
+    html += '<span class="label">Session ID</span>';
+    html += '<span class="value">' + escapeHtml(currentSelection) + "</span>";
+    html += "</div>";
+    html += '<div class="session-summary-item">';
+    html += '<span class="label">Total Events</span>';
+    html += '<span class="value">' + events.length + "</span>";
+    html += "</div>";
+    html += '<div class="session-summary-item">';
+    html += '<span class="label">Loops</span>';
+    const uniqueLoops = new Set(events.filter((e) => e.loop).map((e) => e.loop))
+      .size;
+    html += '<span class="value">' + uniqueLoops + "</span>";
+    html += "</div>";
+    html += "</div>";
+    html += "</div>";
+
+    // Group events by loop
+    const eventsByLoop = {};
+    events.forEach((event) => {
+      const loop = event.loop || 0;
+      if (!eventsByLoop[loop]) {
+        eventsByLoop[loop] = [];
+      }
+      eventsByLoop[loop].push(event);
+    });
+
+    html += '<div class="session-events">';
+    Object.keys(eventsByLoop)
+      .sort((a, b) => Number(a) - Number(b))
+      .forEach((loop) => {
+        html += '<div class="session-event-group">';
+        html += "<h3>Loop " + loop + "</h3>";
+        eventsByLoop[loop].forEach((event) => {
+          const timestamp = event.timestamp
+            ? new Date(event.timestamp).toLocaleString()
+            : "—";
+          const eventClass = event.type.toLowerCase().replace(/_/g, "-");
+          html +=
+            '<div class="audit-event ' +
+            eventClass +
+            '" style="margin-bottom: 8px;">';
+          html +=
+            '<span class="audit-type-badge ' +
+            eventClass +
+            '">' +
+            escapeHtml(event.type) +
+            "</span>";
+          html += '<div class="audit-details">';
+          html +=
+            '<div class="audit-message">' +
+            escapeHtml(event.message) +
+            "</div>";
+          html += "</div>";
+          html +=
+            '<div class="audit-timestamp">' + escapeHtml(timestamp) + "</div>";
+          html += "</div>";
+        });
+        html += "</div>";
+      });
+    html += "</div>";
+
+    container.innerHTML = html;
+  }
+
   // --- Main Update Function ---
 
   function updateDashboard(data) {
@@ -1115,6 +1294,8 @@
     renderExitSignals(data);
     renderErrorCatalog(data);
     renderRetryActivity(data);
+    renderAuditTimeline(data);
+    renderSessionReplay(data);
   }
 
   // --- SSE Connection ---
@@ -1204,6 +1385,45 @@
     }
   }
 
+  // Initialize event listeners for audit timeline filters
+  function setupAuditFilters() {
+    const filterIds = [
+      "audit-filter-errors",
+      "audit-filter-circuit-breaker",
+      "audit-filter-completion",
+      "audit-filter-info",
+    ];
+    filterIds.forEach((id) => {
+      const checkbox = document.getElementById(id);
+      if (checkbox) {
+        checkbox.addEventListener("change", () => {
+          // Re-render audit timeline with current data
+          if (window.lastDashboardData) {
+            renderAuditTimeline(window.lastDashboardData);
+          }
+        });
+      }
+    });
+
+    // Session selector
+    const sessionSelector = document.getElementById("session-selector");
+    if (sessionSelector) {
+      sessionSelector.addEventListener("change", () => {
+        if (window.lastDashboardData) {
+          renderSessionReplay(window.lastDashboardData);
+        }
+      });
+    }
+  }
+
+  // Store last data for filter updates
+  const originalUpdateDashboard = updateDashboard;
+  updateDashboard = function (data) {
+    window.lastDashboardData = data;
+    originalUpdateDashboard(data);
+  };
+
   // Initialize
+  setupAuditFilters();
   initProjects();
 })();

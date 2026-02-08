@@ -24,6 +24,7 @@ const { parseProgress } = require("../../src/parsers/progress");
 const { parseErrorCatalog } = require("../../src/parsers/error-catalog");
 const { parseRetryLog } = require("../../src/parsers/retry-log");
 const { parseOrchestration } = require("../../src/parsers/orchestration");
+const { parseAuditLog } = require("../../src/parsers/audit-log");
 
 let tmpDir;
 
@@ -132,5 +133,24 @@ describe("malformed JSON resilience", () => {
     );
     const result = parseOrchestration(tmpDir);
     assert.equal(result, null);
+  });
+
+  it("parseAuditLog skips malformed JSONL lines", () => {
+    fs.writeFileSync(
+      path.join(tmpDir, "audit_log.jsonl"),
+      '{"type":"info","timestamp":"2026-01-15T10:00:00Z","session_id":"sess_001","message":"valid"}\n' +
+        "{malformed line\n" +
+        '{"type":"error","timestamp":"2026-01-15T10:05:00Z","session_id":"sess_001","message":"also valid"}\n'
+    );
+    const result = parseAuditLog(tmpDir);
+    assert.equal(result.events.length, 2);
+    assert.equal(result.events[0].type, "info");
+    assert.equal(result.events[1].type, "error");
+  });
+
+  it("parseAuditLog returns empty result for empty file", () => {
+    fs.writeFileSync(path.join(tmpDir, "audit_log.jsonl"), "");
+    const result = parseAuditLog(tmpDir);
+    assert.deepEqual(result, { events: [], sessions: {} });
   });
 });
