@@ -59,9 +59,12 @@
 - [x] [#22] Orchestration timeline view — enhanced audit-log parser to extract orchestration events (orchestration_start, orchestration_repo_start, orchestration_repo_complete, orchestration_complete), builds orchestrationTimeline array with per-repo execution windows (start/end times, status, priority), horizontal bar chart showing repo execution windows sorted by priority then start time, time axis with start/end labels, status-colored bars (completed=green, in_progress=blue with striped animation, failed=red, pending=gray), section auto-hides when no orchestration data, 4 new audit-log tests for orchestration timeline extraction, smoke tests updated
 - [x] [#23] Per-repo cost breakdown chart — added repoName field to cost-log parser (from repo_name in cost_log.jsonl), bar chart showing cost per repository with color-coded bars (8-color palette), legend with color swatches, summary table with per-repo loops/cost/duration/tokens, gracefully hidden when no repo_name data (backwards compatible with non-orchestration runs), 2 new cost-log tests for repoName parsing, server smoke tests updated to verify new data fields
 
+- [x] [#24] fix: Session Replay panel shows empty when sessions exist — auto-select the most recent session on first render instead of showing "Select a session" empty state when session data is available, removed the placeholder "Choose a session" option so dropdown always starts with a real session
+- [x] [#25] fix: Exit Signals panel shows dashes after session reset — when exitSignals is null (file empty/reset/missing), renderExitSignals now sets "none" text instead of returning early and leaving stale "—" dashes in the DOM
+
 ## Summary
 
-**All GitHub issues (#19, #20, #21, #22, #23) are now complete.**
+**All GitHub issues (#19–#25) are now complete.**
 
 ## Notes
 

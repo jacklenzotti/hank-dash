@@ -310,7 +310,11 @@
 
   function renderExitSignals(data) {
     const signals = data.exitSignals;
-    if (!signals) return;
+    if (!signals) {
+      els.exitDone.textContent = "none";
+      els.exitTestLoops.textContent = "none";
+      return;
+    }
 
     const done = signals.doneSignals || [];
     const testLoops = signals.testOnlyLoops || [];
@@ -1353,11 +1357,16 @@
       return;
     }
 
-    // Populate session selector
-    const currentSelection = selector.value;
+    // Populate session selector — auto-select most recent if nothing chosen
+    var currentSelection = selector.value;
     const sessionIds = Object.keys(audit.sessions).sort().reverse(); // Most recent first
 
-    let optionsHtml = '<option value="">-- Choose a session --</option>';
+    // Auto-select the most recent session on first render
+    if (!currentSelection && sessionIds.length > 0) {
+      currentSelection = sessionIds[0];
+    }
+
+    let optionsHtml = "";
     sessionIds.forEach((sessionId) => {
       const selected = sessionId === currentSelection ? " selected" : "";
       optionsHtml +=
