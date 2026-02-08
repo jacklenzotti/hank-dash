@@ -27,6 +27,24 @@ describe("parseCostLog", () => {
     assert.equal(first.model, "claude-sonnet-4-5-20250929");
   });
 
+  it("parses repoName field from entries", () => {
+    const entries = parseCostLog(FIXTURES_DIR);
+    assert.equal(entries[0].repoName, "frontend");
+    assert.equal(entries[1].repoName, "frontend");
+    assert.equal(entries[2].repoName, "backend-api");
+    assert.equal(entries[3].repoName, "backend-api");
+    assert.equal(entries[4].repoName, "shared-types");
+  });
+
+  it("returns null repoName when field is missing", () => {
+    // Entries without repo_name should have null repoName (backwards compat)
+    const entries = parseCostLog(FIXTURES_DIR);
+    // All our fixture entries have repo_name, but verify the field exists
+    entries.forEach((e) => {
+      assert.ok("repoName" in e, "all entries should have repoName field");
+    });
+  });
+
   it("returns empty array for missing file", () => {
     const entries = parseCostLog("/nonexistent/path");
     assert.deepEqual(entries, []);

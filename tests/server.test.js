@@ -80,6 +80,8 @@ describe("DashboardServer", () => {
     // Every dashboard section should be present in the served HTML
     const requiredIds = [
       "orchestration-section",
+      "orchestration-timeline-section",
+      "repo-cost-section",
       "status-bar",
       "circuit-breaker-section",
       "stall-section",
@@ -88,7 +90,6 @@ describe("DashboardServer", () => {
       "token-section",
       "timeline-section",
       "plan-section",
-      "analysis-section",
       "issue-section",
       "model-section",
       "cache-section",
@@ -145,6 +146,17 @@ describe("DashboardServer", () => {
     assert.equal(typeof data.circuitBreaker, "object");
     assert.equal(typeof data.implementationPlan, "object");
     assert.ok(data.implementationPlan.totalCount > 0);
+
+    // Verify new fields: cost log has repoName, audit log has orchestrationTimeline
+    assert.ok(data.costLog[0].repoName, "costLog entries should have repoName");
+    assert.ok(
+      Array.isArray(data.auditLog.orchestrationTimeline),
+      "auditLog should have orchestrationTimeline"
+    );
+    assert.ok(
+      data.auditLog.orchestrationTimeline.length > 0,
+      "orchestrationTimeline should have entries"
+    );
   });
 
   it("serves SSE endpoint", async () => {

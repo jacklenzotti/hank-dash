@@ -56,12 +56,15 @@
 - [x] [#20] Orchestration overview panel — parseOrchestration parser for .hank/.orchestration_state, HTML section with overall progress (X/Y repos complete), repo status table with per-repo status badges (completed=green, in_progress=blue, blocked=yellow, pending=gray), loops, cost, and dependencies, panel shows/hides based on orchestration data presence, frontend renderOrchestration function, 10 new tests (8 parser + 2 malformed JSON), smoke tests updated
 - [x] [#21] Audit timeline and session replay panels — parseAuditLog parser for audit_log.jsonl (JSONL with structured events), returns last 100 events with type/timestamp/session_id/loop/message/details, groups events by session for session replay, Audit Timeline panel with filterable event types (errors/circuit-breaker/completion/info) via checkboxes, Session Replay panel with session selector dropdown showing per-loop breakdown, color-coded event badges (error=red, circuit-breaker=yellow, completion=green, info=blue), interactive filters that re-render timeline in real-time, session summary with session ID/total events/loop count, frontend render functions renderAuditTimeline and renderSessionReplay, event listeners for filter checkboxes and session selector, 11 new tests (9 parser + 2 malformed JSON), smoke tests updated
 
+- [x] [#22] Orchestration timeline view — enhanced audit-log parser to extract orchestration events (orchestration_start, orchestration_repo_start, orchestration_repo_complete, orchestration_complete), builds orchestrationTimeline array with per-repo execution windows (start/end times, status, priority), horizontal bar chart showing repo execution windows sorted by priority then start time, time axis with start/end labels, status-colored bars (completed=green, in_progress=blue with striped animation, failed=red, pending=gray), section auto-hides when no orchestration data, 4 new audit-log tests for orchestration timeline extraction, smoke tests updated
+- [x] [#23] Per-repo cost breakdown chart — added repoName field to cost-log parser (from repo_name in cost_log.jsonl), bar chart showing cost per repository with color-coded bars (8-color palette), legend with color swatches, summary table with per-repo loops/cost/duration/tokens, gracefully hidden when no repo_name data (backwards compatible with non-orchestration runs), 2 new cost-log tests for repoName parsing, server smoke tests updated to verify new data fields
+
 ## Summary
 
-**All GitHub issues (#19, #20, #21) are now complete.**
+**All GitHub issues (#19, #20, #21, #22, #23) are now complete.**
 
 ## Notes
 
-- 85 unit tests total: 51 parser + 18 malformed JSON resilience + 6 server + 10 multi-project server
+- 101 unit tests total: 57 parser + 15 malformed JSON resilience + 6 server + 10 multi-project server + 13 new (audit-log orchestration + cost-log repoName)
 - 47 Playwright integration tests: 8 smoke + 18 panel + 4 live-update + 7 interactivity + 10 multi-project
 - Frontend DOM rendering tests are not feasible without a browser/JSDOM dependency, which violates the zero-dependency constraint. The e2e smoke tests cover the critical path (HTML has all sections, API returns all data).

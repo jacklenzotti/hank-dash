@@ -26,6 +26,23 @@
         <div id="orchestration-content"></div>
       </section>
 
+      <!-- Orchestration Timeline (hidden when no orchestration events) -->
+      <section
+        id="orchestration-timeline-section"
+        class="card"
+        style="display: none;"
+      >
+        <h2>Orchestration Timeline</h2>
+        <div id="orchestration-timeline-content"></div>
+      </section>
+
+      <!-- Per-Repo Cost Breakdown (hidden when no repo cost data) -->
+      <section id="repo-cost-section" class="card" style="display: none;">
+        <h2>Per-Repo Cost Breakdown</h2>
+        <div id="repo-cost-chart" class="repo-cost-chart-container"></div>
+        <div id="repo-cost-table"></div>
+      </section>
+
       <!-- Status Bar -->
       <section id="status-bar" class="card">
         <div class="status-row">
@@ -132,23 +149,6 @@
           <span id="plan-count" class="progress-text">0/0</span>
         </div>
         <ul id="plan-tasks" class="task-list"></ul>
-      </section>
-
-      <!-- Response Analysis -->
-      <section id="analysis-section" class="card">
-        <h2>Latest Analysis</h2>
-        <div id="analysis-content">
-          <div>
-            <span class="label">Confidence:</span>
-            <span id="analysis-confidence">—</span>
-          </div>
-          <div>
-            <span class="label">Summary:</span>
-            <span id="analysis-summary">—</span>
-          </div>
-          <div><span class="label">Files Changed:</span></div>
-          <ul id="analysis-files"></ul>
-        </div>
       </section>
 
       <!-- Issue Burndown -->

@@ -5,3 +5,11 @@
 {"type":"info","timestamp":"2026-01-15T11:00:00Z","session_id":"sess_002","loop":1,"message":"New session started","details":{}}
 {"type":"error","timestamp":"2026-01-15T11:05:00Z","session_id":"sess_002","loop":1,"message":"Import error","details":{"module":"@types/node"}}
 {"type":"completion","timestamp":"2026-01-15T11:10:00Z","session_id":"sess_002","loop":2,"message":"All tests passing","details":{"exit_signal":true}}
+{"type":"orchestration_start","timestamp":"2026-01-15T12:00:00Z","session_id":"sess_003","message":"Orchestration run started","details":{"total_repos":3}}
+{"type":"orchestration_repo_start","timestamp":"2026-01-15T12:01:00Z","session_id":"sess_003","repo_name":"shared-types","message":"Started shared-types","details":{"priority":0}}
+{"type":"orchestration_repo_complete","timestamp":"2026-01-15T12:05:00Z","session_id":"sess_003","repo_name":"shared-types","message":"Completed shared-types","details":{"priority":0,"status":"completed"}}
+{"type":"orchestration_repo_start","timestamp":"2026-01-15T12:02:00Z","session_id":"sess_003","repo_name":"frontend","message":"Started frontend","details":{"priority":1}}
+{"type":"orchestration_repo_complete","timestamp":"2026-01-15T12:10:00Z","session_id":"sess_003","repo_name":"frontend","message":"Completed frontend","details":{"priority":1,"status":"completed"}}
+{"type":"orchestration_repo_start","timestamp":"2026-01-15T12:06:00Z","session_id":"sess_003","repo_name":"backend-api","message":"Started backend-api","details":{"priority":1}}
+{"type":"orchestration_repo_complete","timestamp":"2026-01-15T12:15:00Z","session_id":"sess_003","repo_name":"backend-api","message":"Completed backend-api","details":{"priority":1,"status":"completed"}}
+{"type":"orchestration_complete","timestamp":"2026-01-15T12:15:30Z","session_id":"sess_003","message":"Orchestration run complete","details":{"total_repos":3,"completed":3}}

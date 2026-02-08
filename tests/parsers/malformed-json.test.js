@@ -151,6 +151,10 @@ describe("malformed JSON resilience", () => {
   it("parseAuditLog returns empty result for empty file", () => {
     fs.writeFileSync(path.join(tmpDir, "audit_log.jsonl"), "");
     const result = parseAuditLog(tmpDir);
-    assert.deepEqual(result, { events: [], sessions: {} });
+    assert.deepEqual(result, {
+      events: [],
+      sessions: {},
+      orchestrationTimeline: [],
+    });
   });
 });

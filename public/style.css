@@ -348,22 +348,6 @@ main {
   color: var(--green);
 }
 
-/* Analysis files list */
-#analysis-files {
-  list-style: none;
-  margin-top: 4px;
-}
-
-#analysis-files li {
-  padding: 2px 0;
-  font-size: 12px;
-  color: var(--accent);
-}
-
-#analysis-files li::before {
-  content: "  ";
-}
-
 /* Stall Warning */
 .warning-card {
   grid-column: 1 / -1;
@@ -1008,6 +992,199 @@ main {
   font-size: 13px;
   margin: 0 0 8px 0;
   color: var(--text);
+}
+
+/* Orchestration Timeline */
+#orchestration-timeline-section {
+  grid-column: 1 / -1;
+}
+
+.orch-timeline-container {
+  padding: 12px 0;
+  overflow-x: auto;
+}
+
+.orch-timeline-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.orch-timeline-label {
+  min-width: 120px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.orch-timeline-track {
+  flex: 1;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+  position: relative;
+  min-width: 200px;
+}
+
+.orch-timeline-bar {
+  position: absolute;
+  height: 100%;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 8px;
+  transition: width 0.3s ease;
+}
+
+.orch-timeline-bar.completed {
+  background: var(--green);
+  color: #000;
+}
+
+.orch-timeline-bar.in_progress {
+  background: rgba(52, 152, 219, 0.8);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    rgba(255, 255, 255, 0.1) 5px,
+    rgba(255, 255, 255, 0.1) 10px
+  );
+}
+
+.orch-timeline-bar.failed {
+  background: var(--red);
+}
+
+.orch-timeline-bar.pending {
+  background: rgba(99, 110, 114, 0.3);
+  color: var(--text-muted);
+}
+
+.orch-timeline-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 132px;
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Per-Repo Cost Breakdown */
+#repo-cost-section {
+  grid-column: 1 / -1;
+}
+
+.repo-cost-chart-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 140px;
+  padding: 8px 0;
+}
+
+.repo-cost-bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.repo-cost-bar {
+  width: 100%;
+  max-width: 60px;
+  border-radius: 3px 3px 0 0;
+  position: relative;
+  transition: height 0.3s ease;
+  cursor: default;
+}
+
+.repo-cost-bar:hover {
+  opacity: 0.8;
+}
+
+.repo-cost-bar .bar-label {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.repo-cost-bar .bar-value {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Repo cost bar colors — cycle through palette */
+.repo-cost-bar.repo-color-0 {
+  background: var(--accent);
+}
+.repo-cost-bar.repo-color-1 {
+  background: var(--green);
+}
+.repo-cost-bar.repo-color-2 {
+  background: var(--yellow);
+}
+.repo-cost-bar.repo-color-3 {
+  background: var(--orange);
+}
+.repo-cost-bar.repo-color-4 {
+  background: var(--red);
+}
+.repo-cost-bar.repo-color-5 {
+  background: #a855f7;
+}
+.repo-cost-bar.repo-color-6 {
+  background: #06b6d4;
+}
+.repo-cost-bar.repo-color-7 {
+  background: #ec4899;
+}
+
+.repo-cost-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 8px;
+  font-size: 11px;
+}
+
+.repo-cost-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.repo-cost-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
 /* Responsive */

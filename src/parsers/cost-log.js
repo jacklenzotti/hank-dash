@@ -38,6 +38,7 @@ function parseCostLog(hankDir) {
             sessionId: entry.session_id,
             issueNumber: entry.issue_number,
             model: entry.model || "unknown",
+            repoName: entry.repo_name || entry.repoName || null,
           };
         } catch {
           return null;

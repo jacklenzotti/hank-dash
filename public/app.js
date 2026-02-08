@@ -26,9 +26,6 @@
     planBar: document.getElementById("plan-bar"),
     planCount: document.getElementById("plan-count"),
     planTasks: document.getElementById("plan-tasks"),
-    analysisConfidence: document.getElementById("analysis-confidence"),
-    analysisSummary: document.getElementById("analysis-summary"),
-    analysisFiles: document.getElementById("analysis-files"),
     exitDone: document.getElementById("exit-done"),
     exitTestLoops: document.getElementById("exit-test-loops"),
     stallSection: document.getElementById("stall-section"),
@@ -308,20 +305,6 @@
           escapeHtml(t.text) +
           "</li>"
       )
-      .join("");
-  }
-
-  function renderAnalysis(data) {
-    const analysis = data.responseAnalysis;
-    if (!analysis) return;
-
-    els.analysisConfidence.textContent =
-      analysis.confidence != null
-        ? (analysis.confidence * 100).toFixed(0) + "%"
-        : "—";
-    els.analysisSummary.textContent = analysis.summary || "—";
-    els.analysisFiles.innerHTML = (analysis.filesChanged || [])
-      .map((f) => "<li>" + escapeHtml(f) + "</li>")
       .join("");
   }
 
@@ -1091,6 +1074,201 @@
     container.innerHTML = html;
   }
 
+  function renderOrchestrationTimeline(data) {
+    const audit = data.auditLog;
+    const section = document.getElementById("orchestration-timeline-section");
+    const container = document.getElementById("orchestration-timeline-content");
+    if (!section || !container) return;
+
+    var timeline = (audit && audit.orchestrationTimeline) || [];
+    if (timeline.length === 0) {
+      section.style.display = "none";
+      return;
+    }
+
+    section.style.display = "";
+
+    // Determine overall time range
+    var allTimes = [];
+    timeline.forEach(function (w) {
+      if (w.start) allTimes.push(new Date(w.start).getTime());
+      if (w.end) allTimes.push(new Date(w.end).getTime());
+    });
+    if (timeline[0].orchestrationStart)
+      allTimes.push(new Date(timeline[0].orchestrationStart).getTime());
+    if (timeline[0].orchestrationEnd)
+      allTimes.push(new Date(timeline[0].orchestrationEnd).getTime());
+
+    var minTime = Math.min.apply(null, allTimes);
+    var maxTime = Math.max.apply(null, allTimes);
+    var totalSpan = maxTime - minTime;
+    if (totalSpan <= 0) totalSpan = 1; // avoid division by zero
+
+    var html = '<div class="orch-timeline-container">';
+
+    timeline.forEach(function (w) {
+      var startPct = 0;
+      var widthPct = 100;
+      if (w.start) {
+        startPct = ((new Date(w.start).getTime() - minTime) / totalSpan) * 100;
+      }
+      if (w.start && w.end) {
+        widthPct =
+          ((new Date(w.end).getTime() - new Date(w.start).getTime()) /
+            totalSpan) *
+          100;
+      } else if (w.start) {
+        // Still in progress — extend to current end
+        widthPct = ((maxTime - new Date(w.start).getTime()) / totalSpan) * 100;
+      }
+      // Ensure minimum visible width
+      if (widthPct < 2) widthPct = 2;
+
+      var durationMin = 0;
+      if (w.start && w.end) {
+        durationMin =
+          (new Date(w.end).getTime() - new Date(w.start).getTime()) / 60000;
+      }
+      var durationLabel = durationMin > 0 ? durationMin.toFixed(1) + "m" : "";
+
+      html += '<div class="orch-timeline-bar-row">';
+      html +=
+        '<div class="orch-timeline-label">' + escapeHtml(w.name) + "</div>";
+      html += '<div class="orch-timeline-track">';
+      html +=
+        '<div class="orch-timeline-bar ' +
+        w.status +
+        '" style="left:' +
+        startPct +
+        "%;width:" +
+        widthPct +
+        '%"';
+      html += ' title="' + escapeHtml(w.name) + ": " + escapeHtml(w.status);
+      if (durationLabel) html += " (" + durationLabel + ")";
+      html += '">';
+      html += durationLabel;
+      html += "</div>";
+      html += "</div>";
+      html += "</div>";
+    });
+
+    // Time axis
+    var startLabel = new Date(minTime).toLocaleTimeString();
+    var endLabel = new Date(maxTime).toLocaleTimeString();
+    html += '<div class="orch-timeline-axis">';
+    html += "<span>" + escapeHtml(startLabel) + "</span>";
+    html += "<span>" + escapeHtml(endLabel) + "</span>";
+    html += "</div>";
+
+    html += "</div>";
+    container.innerHTML = html;
+  }
+
+  function renderRepoCostBreakdown(data) {
+    var entries = data.costLog || [];
+    var section = document.getElementById("repo-cost-section");
+    var chartContainer = document.getElementById("repo-cost-chart");
+    var tableContainer = document.getElementById("repo-cost-table");
+    if (!section || !chartContainer || !tableContainer) return;
+
+    // Group costs by repo_name
+    var repos = {};
+    var hasRepoData = false;
+    for (var i = 0; i < entries.length; i++) {
+      var e = entries[i];
+      var repo = e.repoName;
+      if (!repo) continue;
+      hasRepoData = true;
+      if (!repos[repo]) {
+        repos[repo] = { cost: 0, loops: 0, duration: 0, tokens: 0 };
+      }
+      repos[repo].cost += loopCost(e);
+      repos[repo].loops++;
+      repos[repo].duration += e.durationSeconds || 0;
+      repos[repo].tokens += (e.inputTokens || 0) + (e.outputTokens || 0);
+    }
+
+    if (!hasRepoData) {
+      section.style.display = "none";
+      return;
+    }
+
+    section.style.display = "";
+
+    // Sort by cost descending
+    var repoNames = Object.keys(repos).sort(function (a, b) {
+      return repos[b].cost - repos[a].cost;
+    });
+
+    var maxCost = 0;
+    for (var i = 0; i < repoNames.length; i++) {
+      if (repos[repoNames[i]].cost > maxCost)
+        maxCost = repos[repoNames[i]].cost;
+    }
+
+    // Bar chart
+    var chartHtml = "";
+    for (var i = 0; i < repoNames.length; i++) {
+      var name = repoNames[i];
+      var stats = repos[name];
+      var heightPct = maxCost > 0 ? (stats.cost / maxCost) * 100 : 0;
+      var colorIdx = i % 8;
+
+      chartHtml += '<div class="repo-cost-bar-group">';
+      chartHtml +=
+        '<div class="repo-cost-bar repo-color-' +
+        colorIdx +
+        '" style="height:' +
+        heightPct +
+        '%"';
+      chartHtml +=
+        ' title="' + escapeHtml(name) + ": " + formatCost(stats.cost) + '">';
+      chartHtml +=
+        '<span class="bar-label">' + formatCost(stats.cost) + "</span>";
+      chartHtml += '<span class="bar-value">' + escapeHtml(name) + "</span>";
+      chartHtml += "</div>";
+      chartHtml += "</div>";
+    }
+    chartContainer.innerHTML = chartHtml;
+
+    // Legend
+    var legendHtml = '<div class="repo-cost-legend">';
+    for (var i = 0; i < repoNames.length; i++) {
+      var colorIdx = i % 8;
+      legendHtml += '<div class="repo-cost-legend-item">';
+      legendHtml +=
+        '<div class="repo-cost-legend-swatch repo-color-' +
+        colorIdx +
+        '"></div>';
+      legendHtml += "<span>" + escapeHtml(repoNames[i]) + "</span>";
+      legendHtml += "</div>";
+    }
+    legendHtml += "</div>";
+
+    // Summary table
+    var tableHtml = '<table class="issue-table"><thead><tr>';
+    tableHtml +=
+      "<th>Repository</th><th>Loops</th><th>Cost</th><th>Duration</th><th>Tokens</th>";
+    tableHtml += "</tr></thead><tbody>";
+
+    var totalCost = 0;
+    for (var i = 0; i < repoNames.length; i++) {
+      var name = repoNames[i];
+      var stats = repos[name];
+      totalCost += stats.cost;
+      tableHtml += "<tr>";
+      tableHtml += "<td><strong>" + escapeHtml(name) + "</strong></td>";
+      tableHtml += "<td>" + stats.loops + "</td>";
+      tableHtml += "<td>" + formatCost(stats.cost) + "</td>";
+      tableHtml += "<td>" + formatDuration(stats.duration) + "</td>";
+      tableHtml += "<td>" + (stats.tokens / 1000).toFixed(1) + "k</td>";
+      tableHtml += "</tr>";
+    }
+    tableHtml += "</tbody></table>";
+
+    tableContainer.innerHTML = legendHtml + tableHtml;
+  }
+
   function renderAuditTimeline(data) {
     const audit = data.auditLog;
     const container = document.getElementById("audit-timeline-content");
@@ -1274,6 +1452,8 @@
 
   function updateDashboard(data) {
     renderOrchestration(data);
+    renderOrchestrationTimeline(data);
+    renderRepoCostBreakdown(data);
     renderStatusBar(data);
     renderCircuitBreaker(data);
     renderProcesses(data);
@@ -1283,7 +1463,6 @@
     renderTokenChart(data);
     renderTimeline(data);
     renderPlan(data);
-    renderAnalysis(data);
     renderIssueBurndown(data);
     renderModelBreakdown(data);
     renderCacheHitRate(data);
