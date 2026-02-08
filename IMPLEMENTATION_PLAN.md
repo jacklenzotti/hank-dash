@@ -52,9 +52,10 @@
 - [x] [#15] Playwright tests for SSE updates and interactivity — live-updates.spec.js (4 tests), interactivity.spec.js (7 tests)
 - [x] [#17] Frontend project switcher UI — dropdown selector, project-specific SSE, page title update
 - [x] [#18] Multi-project tests — unit tests (10 tests in multi-project.test.js) covering /api/projects, per-project /api/data, per-project SSE, data isolation, error handling, cleanup; Playwright integration tests (10 tests in multi-project.spec.js) covering project selector UI, project switching, data isolation, circuit breaker state, page title, and API verification
+- [x] [#19] Error catalog and retry activity panels — parseErrorCatalog and parseRetryLog parsers, HTML sections for error catalog and retry activity, CSS styling with color-coded categories (persistent/transient/resolved) and retry outcomes (success/failure/exhausted), frontend render functions, 13 new tests (7 parser + 6 malformed JSON), smoke tests updated
 
 ## Notes
 
-- 51 unit tests total: 27 parser + 8 malformed JSON resilience + 6 server + 10 multi-project server
-- 45 Playwright integration tests: 6 smoke + 18 panel + 4 live-update + 7 interactivity + 10 multi-project
+- 64 unit tests total: 34 parser + 14 malformed JSON resilience + 6 server + 10 multi-project server
+- 47 Playwright integration tests: 8 smoke + 18 panel + 4 live-update + 7 interactivity + 10 multi-project
 - Frontend DOM rendering tests are not feasible without a browser/JSDOM dependency, which violates the zero-dependency constraint. The e2e smoke tests cover the critical path (HTML has all sections, API returns all data).
