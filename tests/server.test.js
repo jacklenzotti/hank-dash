@@ -79,6 +79,7 @@ describe("DashboardServer", () => {
 
     // Every dashboard section should be present in the served HTML
     const requiredIds = [
+      "orchestration-section",
       "status-bar",
       "circuit-breaker-section",
       "stall-section",
@@ -128,6 +129,7 @@ describe("DashboardServer", () => {
       "sessionHistory",
       "errorCatalog",
       "retryLog",
+      "orchestration",
     ];
     for (const key of requiredKeys) {
       assert.ok(key in data, `API response missing key: ${key}`);

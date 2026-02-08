@@ -19,6 +19,7 @@ const { parseSessionHistory } = require("./session-history");
 const { parseProcesses } = require("./processes");
 const { parseErrorCatalog } = require("./error-catalog");
 const { parseRetryLog } = require("./retry-log");
+const { parseOrchestration } = require("./orchestration");
 
 function filterToLatestSession(entries) {
   if (entries.length === 0) return entries;
@@ -43,6 +44,7 @@ function parseAll(hankDir) {
     processes: parseProcesses(),
     errorCatalog: parseErrorCatalog(hankDir),
     retryLog: parseRetryLog(hankDir),
+    orchestration: parseOrchestration(hankDir),
   };
 }
 
@@ -62,4 +64,5 @@ module.exports = {
   parseProcesses,
   parseErrorCatalog,
   parseRetryLog,
+  parseOrchestration,
 };

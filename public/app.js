@@ -1016,9 +1016,85 @@
     container.innerHTML = html;
   }
 
+  function renderOrchestration(data) {
+    const orch = data.orchestration;
+    const section = document.getElementById("orchestration-section");
+    const container = document.getElementById("orchestration-content");
+    if (!section || !container) return;
+
+    // Hide section if no orchestration data
+    if (!orch) {
+      section.style.display = "none";
+      return;
+    }
+
+    section.style.display = "";
+
+    // Summary stats
+    let html = '<div class="orchestration-summary">';
+    html += '<div class="orchestration-stat">';
+    html +=
+      '<span class="stat-value">' +
+      orch.completedRepos +
+      "/" +
+      orch.totalRepos +
+      "</span>";
+    html += '<span class="stat-label">Completed</span>';
+    html += "</div>";
+    html += '<div class="orchestration-stat">';
+    html += '<span class="stat-value">' + orch.inProgressRepos + "</span>";
+    html += '<span class="stat-label">In Progress</span>';
+    html += "</div>";
+    html += '<div class="orchestration-stat">';
+    html += '<span class="stat-value">' + orch.blockedRepos + "</span>";
+    html += '<span class="stat-label">Blocked</span>';
+    html += "</div>";
+    html += "</div>";
+
+    // Repo status table
+    html += '<table class="repo-status-table"><thead><tr>';
+    html += "<th>Repository</th>";
+    html += "<th>Status</th>";
+    html += "<th>Loops</th>";
+    html += "<th>Cost</th>";
+    html += "<th>Dependencies</th>";
+    html += "</tr></thead><tbody>";
+
+    orch.repos.forEach((repo) => {
+      html += "<tr>";
+      html += "<td><strong>" + escapeHtml(repo.name) + "</strong></td>";
+      html +=
+        '<td><span class="repo-status-badge ' +
+        repo.status +
+        '">' +
+        escapeHtml(repo.status) +
+        "</span></td>";
+      html += "<td>" + repo.loops + "</td>";
+      html += "<td>$" + repo.cost.toFixed(4) + "</td>";
+      html += '<td><span class="repo-dependencies">';
+      if (repo.dependencies.length > 0) {
+        html += escapeHtml(repo.dependencies.join(", "));
+      } else {
+        html += "—";
+      }
+      if (repo.blockedBy.length > 0) {
+        html +=
+          ' <span style="color:var(--yellow)">(blocked by: ' +
+          escapeHtml(repo.blockedBy.join(", ")) +
+          ")</span>";
+      }
+      html += "</span></td>";
+      html += "</tr>";
+    });
+
+    html += "</tbody></table>";
+    container.innerHTML = html;
+  }
+
   // --- Main Update Function ---
 
   function updateDashboard(data) {
+    renderOrchestration(data);
     renderStatusBar(data);
     renderCircuitBreaker(data);
     renderProcesses(data);

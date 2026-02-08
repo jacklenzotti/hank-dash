@@ -23,6 +23,7 @@ const { parseStatus } = require("../../src/parsers/status");
 const { parseProgress } = require("../../src/parsers/progress");
 const { parseErrorCatalog } = require("../../src/parsers/error-catalog");
 const { parseRetryLog } = require("../../src/parsers/retry-log");
+const { parseOrchestration } = require("../../src/parsers/orchestration");
 
 let tmpDir;
 
@@ -116,5 +117,20 @@ describe("malformed JSON resilience", () => {
     assert.equal(entries.length, 2);
     assert.equal(entries[0].strategy, "backoff");
     assert.equal(entries[1].strategy, "constant");
+  });
+
+  it("parseOrchestration returns null for malformed JSON", () => {
+    fs.writeFileSync(path.join(tmpDir, ".orchestration_state"), "{broken json");
+    const result = parseOrchestration(tmpDir);
+    assert.equal(result, null);
+  });
+
+  it("parseOrchestration returns null for missing repos array", () => {
+    fs.writeFileSync(
+      path.join(tmpDir, ".orchestration_state"),
+      '{"not_repos": []}'
+    );
+    const result = parseOrchestration(tmpDir);
+    assert.equal(result, null);
   });
 });

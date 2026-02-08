@@ -697,6 +697,122 @@ main {
   font-size: 13px;
 }
 
+/* Orchestration */
+.orchestration-summary {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+}
+
+.orchestration-stat {
+  flex: 1;
+  text-align: center;
+}
+
+.orchestration-stat .stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  display: block;
+}
+
+.orchestration-stat .stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 4px;
+  display: block;
+}
+
+.repo-status-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 12px;
+}
+
+.repo-status-table th {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.repo-status-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.repo-status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.repo-status-badge.completed {
+  background: var(--green);
+  color: #000;
+}
+
+.repo-status-badge.in_progress {
+  background: rgba(52, 152, 219, 0.8);
+  color: #fff;
+}
+
+.repo-status-badge.blocked {
+  background: var(--yellow);
+  color: #000;
+}
+
+.repo-status-badge.pending {
+  background: rgba(99, 110, 114, 0.3);
+  color: var(--text-muted);
+}
+
+.repo-dependencies {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.dependency-graph {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.dependency-node {
+  padding: 4px 0;
+  font-family: var(--font-mono);
+}
+
+.dependency-node.level-0 {
+  margin-left: 0;
+}
+
+.dependency-node.level-1 {
+  margin-left: 20px;
+}
+
+.dependency-node.level-2 {
+  margin-left: 40px;
+}
+
+.dependency-arrow {
+  color: var(--text-muted);
+  margin-right: 8px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   main {

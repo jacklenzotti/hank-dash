@@ -1,0 +1,44 @@
+{
+  "repos": [
+    {
+      "name": "frontend",
+      "status": "completed",
+      "loops": 8,
+      "cost_usd": 0.52,
+      "dependencies": [],
+      "blocked_by": []
+    },
+    {
+      "name": "backend-api",
+      "status": "in_progress",
+      "loops": 3,
+      "cost_usd": 0.28,
+      "dependencies": ["shared-types"],
+      "blocked_by": []
+    },
+    {
+      "name": "database-migrations",
+      "status": "blocked",
+      "loops": 0,
+      "cost_usd": 0.0,
+      "dependencies": ["backend-api"],
+      "blocked_by": ["backend-api"]
+    },
+    {
+      "name": "shared-types",
+      "status": "completed",
+      "loops": 2,
+      "cost_usd": 0.15,
+      "dependencies": [],
+      "blocked_by": []
+    },
+    {
+      "name": "docs",
+      "status": "pending",
+      "loops": 0,
+      "cost_usd": 0.0,
+      "dependencies": ["frontend", "backend-api"],
+      "blocked_by": []
+    }
+  ]
+}
