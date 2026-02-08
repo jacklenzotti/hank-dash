@@ -53,9 +53,10 @@
 - [x] [#17] Frontend project switcher UI — dropdown selector, project-specific SSE, page title update
 - [x] [#18] Multi-project tests — unit tests (10 tests in multi-project.test.js) covering /api/projects, per-project /api/data, per-project SSE, data isolation, error handling, cleanup; Playwright integration tests (10 tests in multi-project.spec.js) covering project selector UI, project switching, data isolation, circuit breaker state, page title, and API verification
 - [x] [#19] Error catalog and retry activity panels — parseErrorCatalog and parseRetryLog parsers, HTML sections for error catalog and retry activity, CSS styling with color-coded categories (persistent/transient/resolved) and retry outcomes (success/failure/exhausted), frontend render functions, 13 new tests (7 parser + 6 malformed JSON), smoke tests updated
+- [x] [#20] Orchestration overview panel — parseOrchestration parser for .hank/.orchestration_state, HTML section with overall progress (X/Y repos complete), repo status table with per-repo status badges (completed=green, in_progress=blue, blocked=yellow, pending=gray), loops, cost, and dependencies, panel shows/hides based on orchestration data presence, frontend renderOrchestration function, 10 new tests (8 parser + 2 malformed JSON), smoke tests updated
 
 ## Notes
 
-- 64 unit tests total: 34 parser + 14 malformed JSON resilience + 6 server + 10 multi-project server
+- 74 unit tests total: 42 parser + 16 malformed JSON resilience + 6 server + 10 multi-project server
 - 47 Playwright integration tests: 8 smoke + 18 panel + 4 live-update + 7 interactivity + 10 multi-project
 - Frontend DOM rendering tests are not feasible without a browser/JSDOM dependency, which violates the zero-dependency constraint. The e2e smoke tests cover the critical path (HTML has all sections, API returns all data).
