@@ -1,0 +1,5 @@
+{"timestamp":"2026-01-15T10:30:00Z","strategy":"exponential_backoff","attempt_number":1,"outcome":"failure","error_type":"ETIMEDOUT","delay_ms":1000,"session_id":"sess_001","loop":3}
+{"timestamp":"2026-01-15T10:30:05Z","strategy":"exponential_backoff","attempt_number":2,"outcome":"success","error_type":"ETIMEDOUT","delay_ms":2000,"session_id":"sess_001","loop":3}
+{"timestamp":"2026-01-15T11:00:00Z","strategy":"constant","attempt_number":1,"outcome":"failure","error_type":"ECONNREFUSED","delay_ms":5000,"session_id":"sess_001","loop":5}
+{"timestamp":"2026-01-15T11:00:10Z","strategy":"constant","attempt_number":2,"outcome":"failure","error_type":"ECONNREFUSED","delay_ms":5000,"session_id":"sess_001","loop":5}
+{"timestamp":"2026-01-15T11:00:20Z","strategy":"constant","attempt_number":3,"outcome":"exhausted","error_type":"ECONNREFUSED","delay_ms":5000,"session_id":"sess_001","loop":5}

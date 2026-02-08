@@ -1,0 +1,28 @@
+{
+  "errors": [
+    {
+      "category": "persistent",
+      "signature": "ENOENT: /path/to/file",
+      "count": 5,
+      "first_seen": "2026-01-15T10:30:00Z",
+      "last_seen": "2026-01-15T14:45:00Z",
+      "sample_message": "ENOENT: no such file or directory, open '/path/to/file'"
+    },
+    {
+      "category": "transient",
+      "signature": "ETIMEDOUT: api.example.com",
+      "count": 2,
+      "first_seen": "2026-01-15T11:00:00Z",
+      "last_seen": "2026-01-15T11:30:00Z",
+      "sample_message": "ETIMEDOUT: connection timed out to api.example.com"
+    },
+    {
+      "category": "resolved",
+      "signature": "ReferenceError: foo is not defined",
+      "count": 1,
+      "first_seen": "2026-01-15T09:00:00Z",
+      "last_seen": "2026-01-15T09:00:00Z",
+      "sample_message": "ReferenceError: foo is not defined at module.js:42"
+    }
+  ]
+}

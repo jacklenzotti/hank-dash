@@ -909,6 +909,113 @@
     els.processesContent.innerHTML = html;
   }
 
+  function renderErrorCatalog(data) {
+    const errors = data.errorCatalog || [];
+    const container = document.getElementById("error-catalog-content");
+    if (!container) return;
+
+    if (errors.length === 0) {
+      container.innerHTML =
+        '<div class="empty-state">No errors cataloged yet</div>';
+      return;
+    }
+
+    let html = '<table class="error-catalog-table"><thead><tr>';
+    html += "<th>Category</th>";
+    html += "<th>Signature</th>";
+    html += "<th>Count</th>";
+    html += "<th>First Seen</th>";
+    html += "<th>Last Seen</th>";
+    html += "<th>Sample Message</th>";
+    html += "</tr></thead><tbody>";
+
+    errors.forEach((error) => {
+      const categoryClass = error.category.toLowerCase();
+      const firstSeen = error.firstSeen
+        ? new Date(error.firstSeen).toLocaleString()
+        : "—";
+      const lastSeen = error.lastSeen
+        ? new Date(error.lastSeen).toLocaleString()
+        : "—";
+
+      html += "<tr>";
+      html +=
+        '<td><span class="error-category ' +
+        categoryClass +
+        '">' +
+        escapeHtml(error.category) +
+        "</span></td>";
+      html += "<td>" + escapeHtml(error.signature) + "</td>";
+      html += "<td>" + error.count + "</td>";
+      html += "<td>" + escapeHtml(firstSeen) + "</td>";
+      html += "<td>" + escapeHtml(lastSeen) + "</td>";
+      html +=
+        '<td><span class="error-message">' +
+        escapeHtml(error.sampleMessage) +
+        "</span></td>";
+      html += "</tr>";
+    });
+
+    html += "</tbody></table>";
+    container.innerHTML = html;
+  }
+
+  function renderRetryActivity(data) {
+    const retries = data.retryLog || [];
+    const container = document.getElementById("retry-activity-content");
+    if (!container) return;
+
+    if (retries.length === 0) {
+      container.innerHTML =
+        '<div class="empty-state">No retry activity yet</div>';
+      return;
+    }
+
+    // Show most recent first
+    const sorted = retries.slice().reverse();
+    let html = '<div class="retry-timeline">';
+
+    sorted.forEach((retry) => {
+      const outcome = retry.outcome.toLowerCase();
+      const timestamp = retry.timestamp
+        ? new Date(retry.timestamp).toLocaleString()
+        : "—";
+
+      html += '<div class="retry-entry ' + outcome + '">';
+      html +=
+        '<span class="retry-badge ' +
+        outcome +
+        '">' +
+        escapeHtml(retry.outcome) +
+        "</span>";
+      html += '<div class="retry-details">';
+      html +=
+        '<div class="retry-strategy">' +
+        escapeHtml(retry.strategy) +
+        " (Attempt " +
+        retry.attemptNumber +
+        ")</div>";
+      html += '<div class="retry-meta">';
+      if (retry.errorType) {
+        html += "Error: " + escapeHtml(retry.errorType) + " &nbsp;|&nbsp; ";
+      }
+      if (retry.delayMs) {
+        html += "Delay: " + retry.delayMs + "ms &nbsp;|&nbsp; ";
+      }
+      if (retry.loop) {
+        html += "Loop: " + retry.loop;
+      }
+      html += "</div>";
+      html += "</div>";
+      html +=
+        '<div class="retry-timestamp">' + escapeHtml(timestamp) + "</div>";
+      html += "</div>";
+    });
+
+    html += "</div>";
+    container.innerHTML = html;
+  }
+
   // --- Main Update Function ---
 
   function updateDashboard(data) {
@@ -930,6 +1037,8 @@
     renderSessionHistory(data);
     renderLiveLog(data);
     renderExitSignals(data);
+    renderErrorCatalog(data);
+    renderRetryActivity(data);
   }
 
   // --- SSE Connection ---

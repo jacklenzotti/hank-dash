@@ -550,6 +550,153 @@ main {
   background: rgba(248, 81, 73, 0.05);
 }
 
+/* Error Catalog */
+.error-catalog-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.error-catalog-table th {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.error-catalog-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.error-category {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.error-category.persistent {
+  background: rgba(248, 81, 73, 0.2);
+  color: var(--red);
+}
+
+.error-category.transient {
+  background: rgba(255, 176, 59, 0.2);
+  color: var(--yellow);
+}
+
+.error-category.resolved {
+  background: rgba(46, 213, 115, 0.2);
+  color: var(--green);
+}
+
+.error-category.unknown {
+  background: rgba(99, 110, 114, 0.2);
+  color: var(--text-muted);
+}
+
+.error-message {
+  font-size: 11px;
+  color: var(--text-muted);
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Retry Activity */
+.retry-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.retry-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-left: 3px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+
+.retry-entry.success {
+  border-left-color: var(--green);
+  background: rgba(46, 213, 115, 0.05);
+}
+
+.retry-entry.failure {
+  border-left-color: var(--red);
+  background: rgba(248, 81, 73, 0.05);
+}
+
+.retry-entry.exhausted {
+  border-left-color: var(--yellow);
+  background: rgba(255, 176, 59, 0.05);
+}
+
+.retry-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.retry-badge.success {
+  background: var(--green);
+  color: #000;
+}
+
+.retry-badge.failure {
+  background: var(--red);
+  color: #fff;
+}
+
+.retry-badge.exhausted {
+  background: var(--yellow);
+  color: #000;
+}
+
+.retry-details {
+  flex: 1;
+  font-size: 12px;
+}
+
+.retry-timestamp {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.retry-strategy {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.retry-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   main {

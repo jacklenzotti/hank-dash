@@ -17,6 +17,8 @@ const { parseImplementationPlan } = require("./implementation-plan");
 const { parseLiveLog } = require("./live-log");
 const { parseSessionHistory } = require("./session-history");
 const { parseProcesses } = require("./processes");
+const { parseErrorCatalog } = require("./error-catalog");
+const { parseRetryLog } = require("./retry-log");
 
 function filterToLatestSession(entries) {
   if (entries.length === 0) return entries;
@@ -39,6 +41,8 @@ function parseAll(hankDir) {
     liveLog: parseLiveLog(hankDir),
     sessionHistory: parseSessionHistory(hankDir),
     processes: parseProcesses(),
+    errorCatalog: parseErrorCatalog(hankDir),
+    retryLog: parseRetryLog(hankDir),
   };
 }
 
@@ -56,4 +60,6 @@ module.exports = {
   parseLiveLog,
   parseSessionHistory,
   parseProcesses,
+  parseErrorCatalog,
+  parseRetryLog,
 };

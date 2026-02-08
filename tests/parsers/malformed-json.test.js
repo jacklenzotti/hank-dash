@@ -21,6 +21,8 @@ const {
 const { parseExitSignals } = require("../../src/parsers/exit-signals");
 const { parseStatus } = require("../../src/parsers/status");
 const { parseProgress } = require("../../src/parsers/progress");
+const { parseErrorCatalog } = require("../../src/parsers/error-catalog");
+const { parseRetryLog } = require("../../src/parsers/retry-log");
 
 let tmpDir;
 
@@ -89,5 +91,30 @@ describe("malformed JSON resilience", () => {
     fs.writeFileSync(path.join(tmpDir, "progress.json"), "{{double brace");
     const result = parseProgress(tmpDir);
     assert.equal(result, null);
+  });
+
+  it("parseErrorCatalog returns [] for malformed JSON", () => {
+    fs.writeFileSync(path.join(tmpDir, ".error_catalog"), "{broken json");
+    const result = parseErrorCatalog(tmpDir);
+    assert.deepEqual(result, []);
+  });
+
+  it("parseErrorCatalog returns [] for missing errors array", () => {
+    fs.writeFileSync(path.join(tmpDir, ".error_catalog"), '{"not_errors": []}');
+    const result = parseErrorCatalog(tmpDir);
+    assert.deepEqual(result, []);
+  });
+
+  it("parseRetryLog skips malformed JSONL lines", () => {
+    fs.writeFileSync(
+      path.join(tmpDir, ".retry_log"),
+      '{"timestamp":"2026-01-15T10:00:00Z","strategy":"backoff","outcome":"success","attempt_number":1}\n' +
+        "{malformed\n" +
+        '{"timestamp":"2026-01-15T10:05:00Z","strategy":"constant","outcome":"failure","attempt_number":2}\n'
+    );
+    const entries = parseRetryLog(tmpDir);
+    assert.equal(entries.length, 2);
+    assert.equal(entries[0].strategy, "backoff");
+    assert.equal(entries[1].strategy, "constant");
   });
 });

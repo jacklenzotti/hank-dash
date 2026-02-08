@@ -95,6 +95,8 @@ describe("DashboardServer", () => {
       "session-history-section",
       "log-section",
       "exit-section",
+      "error-catalog-section",
+      "retry-activity-section",
     ];
     for (const id of requiredIds) {
       assert.ok(res.body.includes(`id="${id}"`), `HTML missing section: ${id}`);
@@ -124,6 +126,8 @@ describe("DashboardServer", () => {
       "implementationPlan",
       "liveLog",
       "sessionHistory",
+      "errorCatalog",
+      "retryLog",
     ];
     for (const key of requiredKeys) {
       assert.ok(key in data, `API response missing key: ${key}`);
